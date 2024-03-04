@@ -1,0 +1,44 @@
+
+.options {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  button {
+    margin: 5px;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+
+
+.result {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  h2 {
+    color: #4caf50;
+  }
+  
+  p {
+    font-size: 18px;
+    margin-top: 10px;
+  }
+
+  .question {
+    margin: 20px;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+  }
