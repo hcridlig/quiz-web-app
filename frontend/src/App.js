@@ -14,7 +14,7 @@ class App extends Component {
 
   componentDidMount() {
     // Effectuer une requête à votre API pour récupérer les questions
-    fetch('votre_api/questions')
+    fetch(process.env.URL + '/api/questions')
       .then(response => response.json())
       .then(data => {
         this.setState({ questions: data });
@@ -24,19 +24,28 @@ class App extends Component {
 
   render() {
     const { questions, currentQuestionIndex } = this.state;
-
+  
     if (questions.length === 0) {
       return <p>Chargement des questions...</p>;
     }
-
+  
     const currentQuestion = questions[currentQuestionIndex];
-
+  
+    // Extract options from individual properties
+    const options = [currentQuestion.optiona, currentQuestion.optionb, currentQuestion.optionc, currentQuestion.optiond].filter(Boolean);
+  
+    // Check if options is an array
+    if (!Array.isArray(options) || options.length === 0) {
+      console.error('Invalid question data. Options should be an array.', currentQuestion);
+      return null; // or handle the error in another way
+    }
+  
     return (
       <div>
         <h1>Quiz App</h1>
         <p>{currentQuestion.question}</p>
         <ul>
-          {currentQuestion.options.map((option, index) => (
+          {options.map((option, index) => (
             <li key={index}>
               <label>
                 <input
@@ -50,10 +59,11 @@ class App extends Component {
             </li>
           ))}
         </ul>
-        <button onClick={this.handleNextQuestion}>Suivant</button>
       </div>
     );
   }
+  
+  
 
   handleAnswerChange = (index) => {
     const userAnswers = [...this.state.userAnswers];
