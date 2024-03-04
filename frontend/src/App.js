@@ -14,7 +14,7 @@ class App extends Component {
 
   componentDidMount() {
     // Effectuer une requête à votre API pour récupérer les questions
-    fetch(process.env.URL + '/api/questions')
+    fetch('https://quiz-web-app-five.vercel.app/api/questions')
       .then(response => response.json())
       .then(data => {
         this.setState({ questions: data });
