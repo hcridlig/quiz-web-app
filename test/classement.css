@@ -1,0 +1,29 @@
+* {
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  main {
+    padding: 20px;
+  }
+  
+table {
+    width: 100%;
+      max-width: 800px; /* largeur maximale du tableau */
+      margin: 0 auto; /* centrer le tableau horizontalement */
+      border-collapse: collapse;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #333;
+    color: #fff;
+  }

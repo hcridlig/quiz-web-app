@@ -1,0 +1,49 @@
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+  }
+  
+  nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  nav ul li {
+    margin-right: 10px;
+  }
+  
+  nav ul li a {
+    color: #fff;
+    text-decoration: none;
+  }
+  
+  #se-connecter, #sinscrire, #lancer-quizz {
+    background-color: #0066cc;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-right: 1em;
+  }
+  
+  #se-connecter:hover, #sinscrire:hover, #lancer-quizz:hover {
+    background-color: #005599;
+  }
+  
+  #lancer-quizz {
+    background-color: #4caf50; /* vert */
+  }
+  
+  /* Ajoute une marge à droite des boutons "Se connecter" et "S'inscrire" */
+  #se-connecter {
+    margin-left: 70em; /* Ajustez la valeur en fonction de vos besoins */
+  }
+
+  #accueil {
+    margin-left: 2em;
+  }
+  
