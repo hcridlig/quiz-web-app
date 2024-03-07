@@ -3,8 +3,8 @@ const config = require('../config/db');
 
 const sequelize = new Sequelize(config.development);
 
-const Question = sequelize.define('Question', {
-  id: {
+const Question = sequelize.define('question', {
+  idquest: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
