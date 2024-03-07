@@ -13,6 +13,9 @@ app.use(cors());
 const questionsRoutes = require('./routes/questions');
 app.use('/questions', questionsRoutes);
 
+const usersRoutes = require('./routes/users');
+app.use('/users', usersRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
