@@ -16,6 +16,9 @@ app.use('/questions', questionsRoutes);
 const usersRoutes = require('./routes/users');
 app.use('/users', usersRoutes);
 
+const categoriesRoutes = require('./routes/categories');
+app.use('/categories', categoriesRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
