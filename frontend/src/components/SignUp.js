@@ -26,7 +26,6 @@ const SignUpPage = () => {
     event.preventDefault();
 
     if (password !== confirmPassword) {
-        // Handle password mismatch error
         setError('Passwords do not match.');
         return;
       }
@@ -50,18 +49,12 @@ const SignUpPage = () => {
         } else {
           const responseBody = await response.json();
           if (response.status === 400 && responseBody.error) {
-            // Handle specific error for duplicate email or username
-            //console.error('Registration failed:', responseBody.error);
             setError(responseBody.error);
           } else {
-           // Handle other registration errors
-          //console.error('Registration failed:', response.statusText);
           setError('An error occurred during registration. Please try again later.');
           }
         }
       } catch (error) {
-        // Handle network or other errors
-        //console.error('Error during registration:', error.message);
         setError('An error occurred during registration. Please try again later.');
       }
     };
@@ -78,7 +71,7 @@ const SignUpPage = () => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign Up
+          Créez votre compte
         </Typography>
         <form onSubmit={handleSubmit} noValidate>
           <TextField
@@ -87,7 +80,7 @@ const SignUpPage = () => {
             required
             fullWidth
             id="email"
-            label="Email Address"
+            label="Adresse e-mail"
             name="email"
             autoComplete="email"
             autoFocus
@@ -100,7 +93,7 @@ const SignUpPage = () => {
             required
             fullWidth
             id="username"
-            label="Username"
+            label="Identifiant"
             name="username"
             autoComplete="username"
             value={username}
@@ -112,7 +105,7 @@ const SignUpPage = () => {
             required
             fullWidth
             name="password"
-            label="Password"
+            label="Mot de passe"
             type={showPassword ? 'text' : 'password'}
             id="password"
             autoComplete="new-password"
@@ -134,7 +127,7 @@ const SignUpPage = () => {
             required
             fullWidth
             name="confirmPassword"
-            label="Confirm Password"
+            label="Confirmation du mot de passe"
             type={showPassword ? 'text' : 'password'}
             id="confirmPassword"
             autoComplete="new-password"
@@ -150,7 +143,7 @@ const SignUpPage = () => {
             color="primary"
             style={{ marginTop: '16px' }}
           >
-            Sign Up
+            Inscription
           </Button>
           <Typography
             variant="body2"
@@ -158,12 +151,12 @@ const SignUpPage = () => {
             align="center"
             style={{ marginTop: '16px' }}
           >
-            Already have an account ?{' '}
+            Vous avez déjà un compte ?{' '}
             <span
               style={{ color: '#1976d2', cursor: 'pointer' }}
               onClick={() => navigate('/signin')}
             >
-              Sign In
+              Connectez-vous
             </span>
           </Typography>                                                                                                                                                                                                                                                                                                           
         </form>
