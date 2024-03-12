@@ -1,6 +1,11 @@
 // App.js
 
 import React, { Component } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import IndexComponent from './page/IndexComponent';
+import ClassementComponent from "./page/ClassementComponent";
+import LoginComponent from "./page/LoginComponent";
+import RegisterComponent from "./page/RegisterComponent";
 
 class App extends Component {
   constructor(props) {
@@ -39,28 +44,42 @@ class App extends Component {
       console.error('Invalid question data. Options should be an array.', currentQuestion);
       return null; // or handle the error in another way
     }
-  
+
+
+    
     return (
-      <div>
-        <h1>Quiz App</h1>
-        <p>{currentQuestion.question}</p>
-        <ul>
-          {options.map((option, index) => (
-            <li key={index}>
-              <label>
-                <input
-                  type="radio"
-                  value={option}
-                  onChange={() => this.handleAnswerChange(index)}
-                  checked={index === this.state.userAnswers[currentQuestionIndex]}
-                />
-                {option}
-              </label>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <Router>
+        <Routes>
+          <Route path="/" exact component={IndexComponent} />
+          <Route path="/classement" component={ClassementComponent} />
+          <Route path="/login" component={LoginComponent} />
+          <Route path="/register" component={RegisterComponent} />
+          {/* Ajoutez d'autres routes pour les différentes pages */}
+        </Routes>
+      </Router>
     );
+
+    // return (
+    //   <div>
+    //     <h1>Quiz App</h1>
+    //     <p>{currentQuestion.question}</p>
+    //     <ul>
+    //       {options.map((option, index) => (
+    //         <li key={index}>
+    //           <label>
+    //             <input
+    //               type="radio"
+    //               value={option}
+    //               onChange={() => this.handleAnswerChange(index)}
+    //               checked={index === this.state.userAnswers[currentQuestionIndex]}
+    //             />
+    //             {option}
+    //           </label>
+    //         </li>
+    //       ))}
+    //     </ul>
+    //   </div>
+    // );
   }
   
   
