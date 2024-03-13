@@ -48,7 +48,7 @@ const LoginPage = () => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign In
+          Connexion
         </Typography>
         <form onSubmit={handleSubmit} noValidate>
           <TextField
@@ -57,7 +57,7 @@ const LoginPage = () => {
             required
             fullWidth
             id="email"
-            label="Email Address"
+            label="Adresse e-mail"
             name="email"
             autoComplete="email"
             autoFocus
@@ -70,7 +70,7 @@ const LoginPage = () => {
             required
             fullWidth
             name="password"
-            label="Password"
+            label="Mot de passe"
             type="password"
             id="password"
             autoComplete="current-password"
@@ -84,7 +84,7 @@ const LoginPage = () => {
             color="primary"
             style={{ marginTop: '16px' }}
           >
-            Sign In
+            Connexion
           </Button>
           <Typography
             variant="body2"
@@ -92,12 +92,12 @@ const LoginPage = () => {
             align="center"
             style={{ marginTop: '16px' }}
           >
-            Already have an account ?{' '}
+            Vous n'avez pas de compte ?{' '}
             <span
               style={{ color: '#1976d2', cursor: 'pointer' }}
               onClick={() => navigate('/signup')}
             >
-              Sign Up
+              Inscrivez-vous
             </span>
           </Typography> 
         </form>
