@@ -9,12 +9,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
     <App />
-<<<<<<< HEAD
-  </React.StrictMode>
-  
-=======
   </BrowserRouter>
->>>>>>> 0c1f0cc0ad736090f331a4182bfec3990baf69df
 );
 
 // If you want to start measuring performance in your app, pass a function
