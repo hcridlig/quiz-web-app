@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Grid,
   Typography,
@@ -8,10 +8,11 @@ import {
   Avatar,
   IconButton,
   InputAdornment,
-} from '@material-ui/core';
-import { Visibility, VisibilityOff } from '@material-ui/icons';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+} from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const SignUpPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
+  const [token, setToken] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -63,6 +65,20 @@ const SignUpPage = () => {
   const handleTogglePassword = () => {
     setShowPassword(!showPassword);
   };
+
+  useEffect(() => {
+    // Check if token exists in cookies
+    const userToken = Cookies.get('token');
+    if (userToken) {
+      setToken(userToken);
+      navigate('/'); // Redirect to dashboard if token exists
+    }
+  }, [navigate]);
+
+  // Redirect to dashboard if token exists
+  if (token) {
+    navigate('/');
+  }
 
   return (
     <Container component="main" maxWidth="xs">

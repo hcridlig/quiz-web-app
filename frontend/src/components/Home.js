@@ -7,32 +7,23 @@ const CategoriesPage = () => {
   const navigate = useNavigate();
   const [token, setToken] = useState('');
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const token = Cookies.get('token');
-    const timer = setTimeout(() => {
-      if (!token) {
-        navigate('/signin');
-      } else {
-        setToken(token);
-        setLoading(false);
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
+    if (!token) {
+      navigate('/signin');
+    } else {
+      setToken(token);
+      setLoading(false);
+    }
 
     fetch('https://quiz-web-app-five.vercel.app/categories')
-      .then((response) => response.json())
-      .then((data) => setCategories(data));
+    .then((response) => response.json())
+    .then((data) => setCategories(data));
 
   }, [navigate]);
 
-  const categories = [
-    { id: 1, name: 'Sports', image: 'https://example.com/sports.jpg' },
-    { id: 2, name: 'Histoire', image: 'https://example.com/histoire.jpg' },
-    { id: 3, name: 'Musique', image: 'https://example.com/musique.jpg' },
-    // Add as many categories as you want
-  ];
 
   if (loading) {
     return (

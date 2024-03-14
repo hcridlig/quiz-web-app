@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Grid,
   Typography,
@@ -6,9 +6,10 @@ import {
   Button,
   Container,
   Avatar,
-} from '@material-ui/core';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+} from '@mui/material';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -31,8 +32,8 @@ const LoginPage = () => {
 
       if (response.ok) {
         // Save the token to local storage or state
-        console.log('Successfully signed in!');
-        console.log('JWT Token:', data.token);
+        Cookies.set('token', data.token);
+        navigate('/'); // Redirect to dashboard if sign-in is successful
       } else {
         console.error('Sign-in failed:', data.error);
       }
@@ -40,6 +41,14 @@ const LoginPage = () => {
       console.error('Error during sign-in:', error);
     }
   };
+
+  useEffect(() => {
+    // Check if token exists in cookies
+    const userToken = Cookies.get('token');
+    if (userToken) {
+      navigate('/'); // Redirect to dashboard if token exists
+    }
+  }, []); // Empty dependency array to run the effect only once after initial render
 
   return (
     <Container component="main" maxWidth="xs">
