@@ -1,4 +1,7 @@
 const { User } = require('../models/users');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const saltRounds = 10; 
 
 const usersController = {
   getAllUsers: async (req, res) => {
@@ -26,11 +29,46 @@ const usersController = {
 
   createUser: async (req, res) => {
     try {
-      const newUser = await User.create(req.body);
-      res.status(201).json(newUser);
+      const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+
+      //const newUser = await User.create(req.body);
+      const newUser = await User.create({
+        email: req.body.email,
+        username: req.body.username,
+        password: hashedPassword,
+      });
+      res.status(200).json(newUser);
+    } catch (error) {
+      //console.log('Error during user creation:', error);
+      res.status(400).json({ error: 'Email or username already in use' });
+    }
+  },
+  
+  signIn: async (req, res) => {
+    const { email, password } = req.body;
+  
+    try {
+      // Find the user by email
+      const user = await User.findOne({ where: { email } });
+  
+      // Check if the user exists
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
+  
+      // Compare the provided password with the hashed password in the database
+      const passwordMatch = await bcrypt.compare(password, user.password);
+  
+      // If passwords match, generate a JWT token and send it in the response
+      if (passwordMatch) {
+        const token = jwt.sign({ userId: user.id }, process.env.API_SECRET_KEY, { expiresIn: '1w' }); // Update with your secret key
+        return res.json({ token });
+      } else {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
     } catch (error) {
       console.error(error);
-      res.status(500).send('Internal Server Error');
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
   },
 
