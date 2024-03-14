@@ -9,6 +9,7 @@ const CategoriesPage = () => {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
 
+ 
   useEffect(() => {
     const token = Cookies.get('token');
     if (!token) {
@@ -18,11 +19,26 @@ const CategoriesPage = () => {
       setLoading(false);
     }
 
-    fetch('https://quiz-web-app-five.vercel.app/categories')
-    .then((response) => response.json())
-    .then((data) => setCategories(data));
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('https://quiz-web-app-five.vercel.app/categories', {
+          headers: {
+            Authorization: `Bearer ${token}` // Include token in the Authorization header
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch categories');
+        }
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        // Handle error
+      }
+    };
 
-  }, [navigate]);
+    fetchCategories();
+  }, [token]);
 
 
   if (loading) {
