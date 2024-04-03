@@ -6,13 +6,16 @@ const saltRounds = 10;
 const usersController = {
   getAllUsers: async (req, res) => {
     try {
-      const users = await User.findAll();
+      const users = await User.findAll({
+        attributes: { exclude: ['password'] }
+      });
       res.json(users);
     } catch (error) {
       console.error(error);
       res.status(500).send('Internal Server Error');
     }
   },
+  
 
   getPlayerName: async(req, res) => {
     const authHeader = req.headers['authorization'];

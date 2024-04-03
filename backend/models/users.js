@@ -26,12 +26,14 @@ const User = sequelize.define('user', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  role: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
 }, {
   timestamps: false, // Disable createdAt and updatedAt
 });
-
-module.exports = User;
-
 
 module.exports = {
   sequelize,
