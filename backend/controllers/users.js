@@ -14,9 +14,28 @@ const usersController = {
     }
   },
 
+  getPlayerName: async(req, res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+  
+    if (!token) {
+      return res.status(401).send('Token not found');
+    }
+  
+    try {
+      const decoded = jwt.verify(token, process.env.API_SECRET_KEY); // Verify token using secret key
+      const playerName = decoded.username;
+      res.json({ playerName });
+    } catch (err) {
+      return res.status(401).send('Invalid token');
+    }
+  },
+
   getUserById: async (req, res) => {
     try {
-      const user = await User.findByPk(req.params.id);
+      const user = await User.findByPk(req.params.id, {
+        attributes: ['iduser', 'username', 'email']
+      });
       if (!user) {
         return res.status(404).json({ error: 'User not found.' });
       }
@@ -40,7 +59,7 @@ const usersController = {
       res.status(200).json(newUser);
     } catch (error) {
       //console.log('Error during user creation:', error);
-      res.status(400).json({ error: 'Email or username already in use' });
+      res.status(400).json({ error: 'Email ou mot de passe incorrect'});
     }
   },
   
@@ -61,7 +80,7 @@ const usersController = {
   
       // If passwords match, generate a JWT token and send it in the response
       if (passwordMatch) {
-        const token = jwt.sign({ userId: user.id }, process.env.API_SECRET_KEY, { expiresIn: '1w' }); // Update with your secret key
+        const token = jwt.sign({ userId: user.id, username: user.username }, process.env.API_SECRET_KEY, { expiresIn: '1w' });
         return res.json({ token });
       } else {
         return res.status(401).json({ error: 'Invalid email or password' });
@@ -74,26 +93,60 @@ const usersController = {
 
   updateUser: async (req, res) => {
     try {
-      const [updatedRowsCount] = await User.update(req.body, {
-        where: { iduser: req.params.id },
-        returning: true,
-      });
+      const { currentPassword, newPassword, ...updateData } = req.body;
+  
+      // Find the user
+      const user = await User.findByPk(req.params.id);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found.' });
+      }
+  
+      // If newPassword is provided, require currentPassword
+      if (newPassword || req.body.password ) {
+        if (!currentPassword) {
+          return res.status(400).json({ error: 'Current password is required.' });
+        }
+        
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        if (!isPasswordValid) {
+          return res.status(400).json({ error: 'Current password is incorrect.' });
+        }
+        
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+        updateData.password = hashedPassword; // Include the new hashed password in the updateData
+      }
+  
+      // Update user data
+      const [updatedRowsCount] = await User.update(
+        updateData, // Use updateData which may include the new hashed password
+        {
+          where: { iduser: req.params.id },
+          returning: true,
+        }
+      );
   
       if (updatedRowsCount === 0) {
         return res.status(404).json({ error: 'User not found.' });
       }
   
       // Fetch the updated user after the update
-      const updatedUser = await User.findByPk(req.params.id);
+      const updatedUser = await User.findByPk(req.params.id, {
+        attributes: ['iduser', 'username', 'email']
+      });
   
-      // Send the updated user as a response
-      res.json(updatedUser);
+      // Generate a new JWT token for the user
+      const token = jwt.sign({ id: updatedUser.iduser, username: updatedUser.username }, process.env.API_SECRET_KEY, { expiresIn: '1w' });
+
+      // Respond with updated user data and token
+      return res.json({ user: updatedUser, token });
     } catch (error) {
       console.error(error);
       res.status(500).send('Internal Server Error');
     }
   },
   
+
 
   deleteUser: async (req, res) => {
     try {
