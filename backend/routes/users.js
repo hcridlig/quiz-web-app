@@ -3,6 +3,7 @@ const router = express.Router();
 const usersController = require('../controllers/users');
 
 router.get('/all', usersController.getAllUsers);
+router.get('/get-player-name', usersController.getPlayerName);
 router.get('/:id', usersController.getUserById);
 router.post('/', usersController.createUser);
 router.post('/signin', usersController.signIn);
