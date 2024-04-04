@@ -72,26 +72,28 @@ const AddUser = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Grid container spacing={2} sx={{ mt: 10 }}>
-        <Grid item xs={2}>
+    <Container component="main" maxWidth="xs" sx={{ mt: 12 }}>
+      <Grid container alignItems="center" >
+        <Grid item>
           <IconButton color="primary" href="/user-management">
             <ArrowBackIcon />
           </IconButton>
         </Grid>
-        <Grid item xs={10}>
+        <Grid item>
           <Typography variant="h4" component="h1">
             Add User
           </Typography>
         </Grid>
       </Grid>
+
       {alert && (
         <Alert severity={alert.severity}>
           {alert.message}
         </Alert>
       )}
-      <Container maxWidth="sm">
-        <Box my={4}>
+
+      <Container>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
