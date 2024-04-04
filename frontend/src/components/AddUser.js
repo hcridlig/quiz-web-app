@@ -17,6 +17,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const AddUser = () => {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,7 +37,7 @@ const AddUser = () => {
     };
 
     try {
-      const response = await fetch('https://quiz-web-app-five.vercel.app/users', {
+      const response = await fetch(`${apiUrl}/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -27,6 +27,7 @@ import {
 } from "@mui/material";
 
 const UserManagement = () => {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const [users, setUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [editableUser, setEditableUser] = useState(null);
@@ -39,7 +40,7 @@ const UserManagement = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const response = await fetch('https://quiz-web-app-five.vercel.app/users/all');
+      const response = await fetch(`${apiUrl}/users/all`);
       const data = await response.json();
       const usersWithRole = data.map((user) => ({ ...user, role: user.role ? 'admin' : 'user' }));
       setUsers(usersWithRole);

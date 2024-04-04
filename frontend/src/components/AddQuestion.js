@@ -16,6 +16,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 function AddQuestion() {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const [question, setQuestion] = useState({
     title: '',
     option1: '',
@@ -30,7 +31,7 @@ function AddQuestion() {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const response = await fetch('https://quiz-web-app-five.vercel.app/categories'); // Replace with your API URL
+      const response = await fetch(`${apiUrl}/categories`); // Replace with your API URL
       const data = await response.json();
       setCategories(data);
     };
