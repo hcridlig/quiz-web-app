@@ -75,7 +75,7 @@ const AddUser = () => {
     <Container component="main" maxWidth="xs">
       <Grid container spacing={2} sx={{ mt: 10 }}>
         <Grid item xs={2}>
-          <IconButton color="primary" href="/usermanagement">
+          <IconButton color="primary" href="/user-management">
             <ArrowBackIcon />
           </IconButton>
         </Grid>

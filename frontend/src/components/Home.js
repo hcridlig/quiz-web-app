@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
+import {
+  TextField,
+  Button,
+  Container,
+  Typography,
+  Box,
+} from '@mui/material';
 
 const CategoriesPage = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
@@ -39,8 +46,10 @@ const CategoriesPage = () => {
   };
 
   return (
-    <div>
-      <h1>Choisissez une catégorie</h1>
+    <div style={{ marginTop: '8vh' }}> {/* Ajoutez la marge supérieure ici */}
+      <Typography variant="h4" component="h1" style={{ marginLeft: '1%' }}>
+        Choisissez une catégorie
+      </Typography>
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <CircularProgress />
@@ -64,6 +73,7 @@ const CategoriesPage = () => {
       )}
     </div>
   );
+
 };
 
 export default CategoriesPage;
