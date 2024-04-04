@@ -6,7 +6,10 @@ import {
   Container,
   Typography,
   Box,
+  Grid,
+  IconButton,
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 function EditUser({ match, history }) {
   const apiUrl = process.env.REACT_APP_API_URL;
@@ -69,10 +72,19 @@ function EditUser({ match, history }) {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Typography variant="h4" component="h1" sx={{ mt: 10 }}>
-        Edit User
-      </Typography>
+    <Container component="main" maxWidth="xs" sx={{ mt: 12 }}>
+      <Grid container alignItems="center">
+        <Grid item>
+          <IconButton color="primary" href="/">
+            <ArrowBackIcon />
+          </IconButton>
+        </Grid>
+        <Grid item>
+          <Typography variant="h4" component="h1">
+            Edit User
+          </Typography>
+        </Grid>
+      </Grid>
       <Container>
         <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <TextField
