@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 
 function EditUser({ match, history }) {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
   const userId = 43;
 
@@ -26,7 +27,7 @@ function EditUser({ match, history }) {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const response = await fetch(`https://quiz-web-app-five.vercel.app/users/${userId}`);
+      const response = await fetch(`${apiUrl}/users/${userId}`);
       const data = await response.json();
       setUser(data);
       setNewUsername(data.username);
