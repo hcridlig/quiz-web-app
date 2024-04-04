@@ -1,69 +1,82 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Grid,
   Typography,
   TextField,
   Button,
   Container,
   Avatar,
-  IconButton,
+  CircularProgress,
+  Snackbar,
+  Alert,
   InputAdornment,
+  IconButton,
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
 const SignUpPage = () => {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false); // State to track loading state
   const [error, setError] = useState(null);
+  const [openAlert, setOpenAlert] = useState(false);
   const [token, setToken] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (password !== confirmPassword) {
-        setError('Passwords do not match.');
-        return;
-      }
-  
-      try {
-        const response = await fetch('http://localhost:4000/users', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email,
-            username,
-            password,
-          }),
-        });
-        console.log(response.status);
-        if (response.status === 200) {
-          console.log('User registered successfully!');
-          navigate('/signin');
-        } else {
-          const responseBody = await response.json();
-          if (response.status === 400 && responseBody.error) {
-            setError(responseBody.error);
-          } else {
-          setError('An error occurred during registration. Please try again later.');
-          }
-        }
-      } catch (error) {
-        setError('An error occurred during registration. Please try again later.');
-      }
-    };
-  
+    if (!email || !username || !password || !confirmPassword) {
+      setError('Veuillez remplir tous les champs.');
+      setOpenAlert(true);
+      return;
+    }
 
-  const handleTogglePassword = () => {
-    setShowPassword(!showPassword);
+    if (password !== confirmPassword) {
+      setError('Les mots de passe ne correspondent pas.');
+      setOpenAlert(true);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${apiUrl}/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          username,
+          password,
+        }),
+      });
+
+      if (response.ok) {
+        console.log('User registered successfully!');
+        navigate('/signin');
+      } else {
+        const responseBody = await response.json();
+        if (response.status === 400 && responseBody.error) {
+          setError(responseBody.error);
+        } else {
+          setError('Une erreur est survenue lors de l\'inscription. Veuillez réessayer plus tard.');
+        }
+        setOpenAlert(true);
+      }
+    } catch (error) {
+      setError(error.message);
+      setOpenAlert(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -79,6 +92,14 @@ const SignUpPage = () => {
   if (token) {
     navigate('/');
   }
+
+  const handleCloseAlert = () => {
+    setOpenAlert(false);
+  };
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -130,8 +151,12 @@ const SignUpPage = () => {
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={handleTogglePassword} edge="end">
-                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  <IconButton
+                    onClick={handleTogglePasswordVisibility}
+                    edge="end"
+                    aria-label="toggle password visibility"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               ),
@@ -149,17 +174,16 @@ const SignUpPage = () => {
             autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            
           />
-          {error && <div style={{ color: 'red', marginTop: '8px' }}>{error}</div>}
           <Button
             type="submit"
             fullWidth
             variant="contained"
             color="primary"
             style={{ marginTop: '16px' }}
+            disabled={loading}
           >
-            Inscription
+            {loading ? <CircularProgress size={24} color="inherit" /> : 'Inscription'}
           </Button>
           <Typography
             variant="body2"
@@ -174,7 +198,17 @@ const SignUpPage = () => {
             >
               Connectez-vous
             </span>
-          </Typography>                                                                                                                                                                                                                                                                                                           
+          </Typography>
+          <Snackbar
+            open={openAlert}
+            autoHideDuration={6000}
+            onClose={handleCloseAlert}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          >
+            <Alert onClose={handleCloseAlert} severity="info">
+              {error}
+            </Alert>
+          </Snackbar>
         </form>
       </div>
     </Container>

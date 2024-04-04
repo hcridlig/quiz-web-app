@@ -1,26 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Grid,
   Typography,
   TextField,
   Button,
   Container,
   Avatar,
+  CircularProgress,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
 const LoginPage = () => {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false); // State to track loading state
+  const [error, setError] = useState('');
+  const [openAlert, setOpenAlert] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
+    setLoading(true); // Set loading state to true when form is submitted
+
+    if (!email || !password) {
+      setError('Veuillez remplir tous les champs');
+      setOpenAlert(true);
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch('http://localhost:4000/users/signin', {
+      const response = await fetch(`${apiUrl}/users/signin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -31,24 +45,30 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Save the token to local storage or state
         Cookies.set('token', data.token);
-        navigate('/'); // Redirect to dashboard if sign-in is successful
+        navigate('/');
       } else {
+        setError('Email ou mot de passe incorrect');
+        setOpenAlert(true);
         console.error('Sign-in failed:', data.error);
       }
     } catch (error) {
       console.error('Error during sign-in:', error);
+    } finally {
+      setLoading(false); // Reset loading state after response
     }
   };
 
   useEffect(() => {
-    // Check if token exists in cookies
     const userToken = Cookies.get('token');
     if (userToken) {
-      navigate('/'); // Redirect to dashboard if token exists
+      navigate('/');
     }
-  }, []); // Empty dependency array to run the effect only once after initial render
+  }, []);
+
+  const handleCloseAlert = () => {
+    setOpenAlert(false);
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -86,14 +106,16 @@ const LoginPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          {/* Conditional rendering for the button content */}
           <Button
             type="submit"
             fullWidth
             variant="contained"
             color="primary"
             style={{ marginTop: '16px' }}
+            disabled={loading} // Disable button when loading
           >
-            Connexion
+            {loading ? <CircularProgress size={24} color="inherit" /> : 'Connexion'}
           </Button>
           <Typography
             variant="body2"
@@ -108,7 +130,17 @@ const LoginPage = () => {
             >
               Inscrivez-vous
             </span>
-          </Typography> 
+          </Typography>
+          <Snackbar
+            open={openAlert}
+            autoHideDuration={6000}
+            onClose={handleCloseAlert}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          >
+            <Alert onClose={handleCloseAlert} severity="error">
+              {error}
+            </Alert>
+          </Snackbar>
         </form>
       </div>
     </Container>
