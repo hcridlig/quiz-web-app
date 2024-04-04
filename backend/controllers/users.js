@@ -1,4 +1,5 @@
 const { User } = require('../models/users');
+const { Op } = require('sequelize');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10; 
@@ -51,20 +52,35 @@ const usersController = {
 
   createUser: async (req, res) => {
     try {
+      // Check if email or username already exists
+      const existingUser = await User.findOne({
+        where: {
+          [Op.or]: [
+            { email: req.body.email },
+            { username: req.body.username }
+          ]
+        }
+      });
+      console.log('existingUser:', existingUser);
+      if (existingUser) {
+        return res.status(400).json({ error: "Email or username already in use" });
+      }
+  
       const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
-
-      //const newUser = await User.create(req.body);
+  
       const newUser = await User.create({
         email: req.body.email,
         username: req.body.username,
         password: hashedPassword,
+        role: false,
       });
+  
       res.status(200).json(newUser);
     } catch (error) {
-      //console.log('Error during user creation:', error);
-      res.status(400).json({ error: 'Email ou mot de passe incorrect'});
+      res.status(400).json({ error: error.message });
     }
   },
+  
   
   signIn: async (req, res) => {
     const { email, password } = req.body;
@@ -75,7 +91,7 @@ const usersController = {
   
       // Check if the user exists
       if (!user) {
-        return res.status(401).json({ error: 'Invalid email or password' });
+        return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
       }
   
       // Compare the provided password with the hashed password in the database
@@ -86,7 +102,7 @@ const usersController = {
         const token = jwt.sign({ userId: user.id, username: user.username, role: user.role }, process.env.API_SECRET_KEY, { expiresIn: '1w' });
         return res.json({ token });
       } else {
-        return res.status(401).json({ error: 'Invalid email or password' });
+        return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
       }
     } catch (error) {
       console.error(error);
