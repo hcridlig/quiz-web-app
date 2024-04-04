@@ -56,7 +56,7 @@ const UserManagement = () => {
   const handleConfirmDelete = async () => {
     setIsDeleteLoading(true);
     try {
-      const response = await fetch(`https://quiz-web-app-five.vercel.app/users/${userIdToDelete}`, {
+      const response = await fetch(`${apiUrl}/users/${userIdToDelete}`, {
         method: 'DELETE',
       });
 
@@ -109,7 +109,7 @@ const UserManagement = () => {
         password: editableUser.password,
         role: editableUser.role === 'admin' ? true : false,
       };
-      const response = await fetch(`https://quiz-web-app-five.vercel.app/users/${userId}`, {
+      const response = await fetch(`${apiUrl}/users/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -248,7 +248,7 @@ const UserManagement = () => {
             <Button
               color="primary"
               variant="contained"
-              href="/adduser"
+              href="/add-user"
               sx={{ mt: 2, mb: 2 }}
             >
               Ajouter un utilisateur

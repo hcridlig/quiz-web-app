@@ -71,9 +71,9 @@ function AddQuestion() {
   };
 
   return (
-    <Box sx={{ mt: 15, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingLeft: "35%", }}>
+    <Box sx={{ mt: 12, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingLeft: "35%", }}>
       <Typography variant="h4" component="h1">
-        Add Question
+        Add question
       </Typography>
       <form noValidate autoComplete="off" onSubmit={handleSubmit} >
         <TextField
