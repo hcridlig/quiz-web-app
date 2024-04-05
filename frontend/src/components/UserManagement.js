@@ -24,6 +24,7 @@ import {
   DialogContentText,
   DialogTitle,
   CircularProgress,
+  Skeleton
 } from "@mui/material";
 
 const UserManagement = () => {
@@ -36,7 +37,8 @@ const UserManagement = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [userIdToDelete, setUserIdToDelete] = useState(null);
   const [isSaveLoading, setIsSaveLoading] = useState(false);
-  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -161,87 +163,99 @@ const UserManagement = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {users.map((user) => (
-                    <React.Fragment key={user.iduser}>
-                      <TableRow onClick={() => handleRowClick(user.iduser)}>
-                        <TableCell component="th" scope="row">
-                          {user.username}
-                        </TableCell>
-                        <TableCell align="right">{user.email}</TableCell>
-                        <TableCell align="right">{user.role}</TableCell>
-                        <TableCell align="right">
-                          <Button
-                            color="error"
-                            onClick={() => handleDelete(user.iduser)}
-                            variant="contained"
-                            disabled={isDeleteLoading}
-                            endIcon={isDeleteLoading && <CircularProgress size={24} />}
-                          >
-                            Delete
-                          </Button>
-                        </TableCell>
+                  {isLoading ? (
+                    [1, 2, 3].map((rowIndex) => (
+                      <TableRow key={rowIndex}>
+                        {[1, 2, 3, 4].map((columnIndex) => (
+                          <TableCell key={columnIndex}>
+                            <Skeleton variant="text" />
+                          </TableCell>
+                        ))}
                       </TableRow>
-                      {selectedUserId === user.iduser && (
-                        <TableRow>
-                          <TableCell colSpan={4}>
-                            <TextField
-                              label="Name"
-                              value={editableUser?.username || ""}
-                              onChange={(e) => {
-                                handleUserUpdate(selectedUserId, { username: e.target.value });
-                              }}
-                              fullWidth
-                              margin="normal"
-                            />
-                            <TextField
-                              label="Email"
-                              value={editableUser?.email || ""}
-                              onChange={(e) => {
-                                handleUserUpdate(selectedUserId, { email: e.target.value });
-                              }}
-                              fullWidth
-                              margin="normal"
-                            />
-                            <TextField
-                              label="New Password"
-                              type="password"
-                              value={editableUser?.password || ""}
-                              onChange={(e) => {
-                                handleUserUpdate(selectedUserId, { password: e.target.value });
-                              }}
-                              fullWidth
-                              margin="normal"
-                            />
-                            <FormControl fullWidth margin="normal">
-                              <InputLabel id="role-select-label-edit">Role</InputLabel>
-                              <Select
-                                labelId="role-select-label-edit"
-                                id="role-select-edit"
-                                value={editableUser?.role || ""}
-                                label="Role"
-                                onChange={(e) => {
-                                  handleUserUpdate(selectedUserId, { role: e.target.value });
-                                }}
-                              >
-                                <MenuItem value="admin">Admin</MenuItem>
-                                <MenuItem value="user">User</MenuItem>
-                              </Select>
-                            </FormControl>
+                    ))
+                  ) : (
+                    users.map((user) => (
+                      <React.Fragment key={user.iduser}>
+                        <TableRow onClick={() => handleRowClick(user.iduser)}>
+                          <TableCell component="th" scope="row">
+                            {user.username}
+                          </TableCell>
+                          <TableCell align="right">{user.email}</TableCell>
+                          <TableCell align="right">{user.role}</TableCell>
+                          <TableCell align="right">
                             <Button
-                              color="primary"
+                              color="error"
+                              onClick={(event) => handleDelete(user.iduser, event)}
                               variant="contained"
-                              onClick={() => handleSave(selectedUserId)}
-                              sx={{ mt: 2 }}
-                              disabled={isSaveLoading}
-                              endIcon={isSaveLoading && <CircularProgress size={24} />}
+                              disabled={deletingUserId === user.iduser}
+                              endIcon={deletingUserId === user.iduser && <CircularProgress size={24} />}
                             >
-                              Valider
+                              Delete
                             </Button>
                           </TableCell>
                         </TableRow>
-                      )}
-                    </React.Fragment>
-                  ))}
+                        {selectedUserId === user.iduser && (
+                          <TableRow>
+                            <TableCell colSpan={4}>
+                              <TextField
+                                label="Name"
+                                value={editableUser?.username || ""}
+                                onChange={(e) => {
+                                  handleUserUpdate(selectedUserId, { username: e.target.value });
+                                }}
+                                fullWidth
+                                margin="normal"
+                              />
+                              <TextField
+                                label="Email"
+                                value={editableUser?.email || ""}
+                                onChange={(e) => {
+                                  handleUserUpdate(selectedUserId, { email: e.target.value });
+                                }}
+                                fullWidth
+                                margin="normal"
+                              />
+                              <TextField
+                                label="New Password"
+                                type="password"
+                                value={editableUser?.password || ""}
+                                onChange={(e) => {
+                                  handleUserUpdate(selectedUserId, { password: e.target.value });
+                                }}
+                                fullWidth
+                                margin="normal"
+                              />
+                              <FormControl fullWidth margin="normal">
+                                <InputLabel id="role-select-label-edit">Role</InputLabel>
+                                <Select
+                                  labelId="role-select-label-edit"
+                                  id="role-select-edit"
+                                  value={editableUser?.role || ""}
+                                  label="Role"
+                                  onChange={(e) => {
+                                    handleUserUpdate(selectedUserId, { role: e.target.value });
+                                  }}
+                                >
+                                  <MenuItem value="admin">Admin</MenuItem>
+                                  <MenuItem value="user">User</MenuItem>
+                                </Select>
+                              </FormControl>
+                              <Button
+                                color="primary"
+                                variant="contained"
+                                onClick={() => handleSave(selectedUserId)}
+                                sx={{ mt: 2 }}
+                                disabled={isSaveLoading}
+                                endIcon={isSaveLoading && <CircularProgress size={24} />}
+                              >
+                                Valider
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </React.Fragment>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
