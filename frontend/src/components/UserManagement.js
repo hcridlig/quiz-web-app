@@ -37,6 +37,7 @@ const UserManagement = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [userIdToDelete, setUserIdToDelete] = useState(null);
   const [isSaveLoading, setIsSaveLoading] = useState(false);
+  const [deletingUserId, setDeletingUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
@@ -46,34 +47,41 @@ const UserManagement = () => {
       const data = await response.json();
       const usersWithRole = data.map((user) => ({ ...user, role: user.role ? 'admin' : 'user' }));
       setUsers(usersWithRole);
+      setIsLoading(false);
     };
     fetchUsers();
   }, []);
 
-  const handleDelete = (userId) => {
+  const handleDelete = (userId, event) => {
+    event.stopPropagation();
+  
     setUserIdToDelete(userId);
     setOpenDeleteDialog(true);
-  };
+  };   
 
   const handleConfirmDelete = async () => {
-    setIsDeleteLoading(true);
+    setDeletingUserId(userIdToDelete); // Set the deletingUserId state before sending the request
+    setOpenDeleteDialog(false);
+  
     try {
       const response = await fetch(`${apiUrl}/users/${userIdToDelete}`, {
         method: 'DELETE',
       });
-
+  
       if (response.ok) {
-        console.log('Utilisateur supprimé avec succès');
         setUsers(users.filter((user) => user.iduser !== userIdToDelete));
-        setOpenDeleteDialog(false);
+        setSnackbarMessage('Utilisateur supprimé avec succès !')
+        setOpenSuccessAlert(true);
       } else {
-        console.error("Erreur lors de la suppression de l'utilisateur");
+        setSnackbarMessage("Erreur lors de la suppression de l'utilisateur")
+        setOpenErrorAlert(true); 
       }
     } catch (error) {
-      console.error("Erreur lors de la suppression de l'utilisateur, error");
+      setSnackbarMessage("Erreur lors de la suppression de l'utilisateur")
+      setOpenErrorAlert(true);
     }
-    setIsDeleteLoading(false);
-  };
+    setDeletingUserId(null); 
+  };  
 
   const handleRoleChange = (userId, newRole) => {
     setUsers(
@@ -119,16 +127,16 @@ const UserManagement = () => {
         body: JSON.stringify(requestBody),
       });
       if (response.ok) {
-        console.log('Utilisateur mis à jour avec succès');
         setUsers(users.map((user) => (user.iduser === userId ? { ...user, ...editableUser } : user)));
         setSelectedUserId(null);
+        setSnackbarMessage("Utilisateur mis à jour avec succès");
         setOpenSuccessAlert(true);
       } else {
-        console.error("Erreur lors de la mise à jour de l'utilisateur");
+        setSnackbarMessage("Erreur lors de la mise à jour de l'utilisateur");
         setOpenErrorAlert(true);
       }
     } catch (error) {
-      console.error("Erreur lors de la mise à jour de l'utilisateur, error");
+      setSnackbarMessage("Erreur lors de la mise à jour de l'utilisateur");
       setOpenErrorAlert(true);
     }
     setIsSaveLoading(false);
@@ -271,22 +279,22 @@ const UserManagement = () => {
         </Grid>
         <Snackbar
           open={openSuccessAlert}
-          autoHideDuration={4000}
+          autoHideDuration={3000}
           onClose={handleCloseAlert}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
-          <Alert onClose={handleCloseAlert} severity="success" sx={{ width: "100%" }}>
-            L'utilisateur a été modifié avec succès !
+          <Alert onClose={handleCloseAlert} severity="success" variant="filled" sx={{ width: "100%" }}>
+            {snackbarMessage}
           </Alert>
         </Snackbar>
         <Snackbar
           open={openErrorAlert}
-          autoHideDuration={4000}
+          autoHideDuration={3000}
           onClose={handleCloseAlert}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
-          <Alert onClose={handleCloseAlert} severity="error" sx={{ width: "100%" }}>
-            Erreur lors de la modification de l'utilisateur.
+          <Alert onClose={handleCloseAlert} severity="error" variant="filled" sx={{ width: "100%" }}>
+            {snackbarMessage}
           </Alert>
         </Snackbar>
         <Dialog
