@@ -18,7 +18,7 @@ const usersController = {
   },
   
 
-  getPlayerName: async(req, res) => {
+  getPlayerInfos: async(req, res) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
   
@@ -29,7 +29,8 @@ const usersController = {
     try {
       const decoded = jwt.verify(token, process.env.API_SECRET_KEY); // Verify token using secret key
       const playerName = decoded.username;
-      res.json({ playerName });
+      const playerRole = decoded.role;
+      res.json({ playerName, playerRole });
     } catch (err) {
       return res.status(401).send('Invalid token');
     }
