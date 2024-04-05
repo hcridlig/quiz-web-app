@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 import {
   Table,
   TableBody,
@@ -116,16 +117,23 @@ const UserManagement = () => {
       const requestBody = {
         username: editableUser.username,
         email: editableUser.email,
-        password: editableUser.password,
         role: editableUser.role === 'admin' ? true : false,
+        ...(editableUser.password && { newPassword: editableUser.password }), // Only include the password field if it's not empty
       };
+  
+      // Get the token from the cookie
+      const token = Cookies.get('token');
+  
+      // Include the token in the request headers
       const response = await fetch(`${apiUrl}/users/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Add the token to the Authorization header
         },
         body: JSON.stringify(requestBody),
       });
+  
       if (response.ok) {
         setUsers(users.map((user) => (user.iduser === userId ? { ...user, ...editableUser } : user)));
         setSelectedUserId(null);
@@ -141,6 +149,7 @@ const UserManagement = () => {
     }
     setIsSaveLoading(false);
   };
+
 
   const handleCloseAlert = (event, reason) => {
     if (reason === 'clickaway') {
