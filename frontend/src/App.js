@@ -10,29 +10,29 @@ import Account from './components/EditUser';
 import AddQuestions from './components/AddQuestion';
 import UserManagement from './components/UserManagement';
 import AddUser from './components/AddUser';
-import SocketProvider from './components/SocketProvider';
-import {Routes , Route} from 'react-router-dom';
+import { Routes , Route, useLocation } from 'react-router-dom';
 
 function App() {
+  const location = useLocation();
+
+  // Check if current route is signin or signup
+  const hideNavbar = location.pathname === '/signin' || location.pathname === '/signup';
+
   return (
     <div>
-      <Navbar />
-      <SocketProvider>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/signin" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/game" element={<Quiz />} />
-          <Route path="/waiting-room" element={<WaitingRoom />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/add-question" element={<AddQuestions />} />
-          <Route path="/user-management" element={<UserManagement />} />
-          <Route path="/add-user" element={<AddUser />} />
-        </Routes>
-      </SocketProvider>
+      {!hideNavbar && <Navbar />}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/signin" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/game" element={<Quiz />} />
+        <Route path="/waiting-room" element={<WaitingRoom />} />
+        <Route path="/account" element={<Account />} />
+        <Route path="/add-question" element={<AddQuestions />} />
+        <Route path="/user-management" element={<UserManagement />} />
+        <Route path="/add-user" element={<AddUser />} />
+      </Routes>
     </div>
-
-    
   );
 }
 
