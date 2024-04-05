@@ -50,7 +50,7 @@ function EditUser({ match, history }) {
       newPassword: newPassword
     };
 
-    const response = await fetch(`https://quiz-web-app-five.vercel.app/users/${user.iduser}`, {
+    const response = await fetch(`${apiUrl}/users/${user.iduser}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
