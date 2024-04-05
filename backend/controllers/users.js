@@ -116,7 +116,7 @@ const usersController = {
       const { currentPassword, newPassword, ...updateData } = req.body;
       const authHeader = req.headers['authorization'];
       const token = authHeader && authHeader.split(' ')[1];
-    
+  
       if (!token) {
         return res.status(401).json({ error: 'Authorization token is missing.' });
       }
@@ -129,7 +129,6 @@ const usersController = {
   
         // Extract role from decoded token
         const isAdmin = decoded.role;
-        console.log('isAdmin:', isAdmin);
   
         // Find the user
         const user = await User.findByPk(req.params.id);
@@ -147,8 +146,10 @@ const usersController = {
           if (!isPasswordValid) {
             return res.status(400).json({ error: 'Current password is incorrect.' });
           }
+        }
   
-          // Hash the new password
+        // If newPassword is provided, hash the new password
+        if (newPassword || req.body.password) {
           const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
           updateData.password = hashedPassword; // Include the new hashed password in the updateData
         }
@@ -171,17 +172,21 @@ const usersController = {
           attributes: ['iduser', 'username', 'email']
         });
   
-        // Generate a new JWT token for the user
-        const newToken = jwt.sign({ id: updatedUser.iduser, username: updatedUser.username, isAdmin }, process.env.API_SECRET_KEY, { expiresIn: '1w' });
+        // Only generate a new JWT token if the user updated their own password
+        if (!isAdmin && newPassword) {
+          const newToken = jwt.sign({ id: updatedUser.iduser, username: updatedUser.username, isAdmin }, process.env.API_SECRET_KEY, { expiresIn: '1w' });
+          return res.json({ user: updatedUser, token: newToken });
+        }
   
-        // Respond with updated user data and token
-        return res.json({ user: updatedUser, token: newToken });
+        // Respond with updated user data only
+        return res.json({ user: updatedUser });
       });
     } catch (error) {
       console.error(error);
       res.status(500).send('Internal Server Error');
     }
   },
+  
   
 
 
