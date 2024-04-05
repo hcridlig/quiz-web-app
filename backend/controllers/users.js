@@ -8,8 +8,10 @@ const usersController = {
   getAllUsers: async (req, res) => {
     try {
       const users = await User.findAll({
-        attributes: { exclude: ['password'] }
+        order: [['username', 'ASC']], 
+        attributes: { exclude: ['password'] },
       });
+
       res.json(users);
     } catch (error) {
       console.error(error);
