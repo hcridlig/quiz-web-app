@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import Button from '@mui/material/Button';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+import { useNavigate } from 'react-router-dom';
+import { Button, Menu, MenuItem } from '@mui/material';
+import { ExitToApp as ExitToAppIcon, ManageAccounts as ManageAccountsIcon, SupervisorAccount as SupervisorAccountIcon } from '@mui/icons-material';
 
 const Navbar = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const [authenticated, setAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -23,7 +26,7 @@ const Navbar = () => {
     const checkAuthentication = async () => {
       if (tokenCookie) {
         try {
-          const response = await fetch(`${apiUrl}/users/get-player-name`, {
+          const response = await fetch(`${apiUrl}/users/get-player-infos`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -33,6 +36,7 @@ const Navbar = () => {
           if (response.ok) {
             const data = await response.json();
             setUsername(data.playerName);
+            setIsAdmin(data.playerRole);
             setAuthenticated(true);
           } else {
             setAuthenticated(false);
@@ -40,7 +44,11 @@ const Navbar = () => {
         } catch (error) {
           console.error('Error checking authentication:', error);
           setAuthenticated(false);
+        } finally {
+          setLoading(false); // Set loading to false once the authentication check is complete
         }
+      } else {
+        setLoading(false); // Set loading to false if no token found
       }
     };
 
@@ -57,6 +65,37 @@ const Navbar = () => {
     }
     return null;
   };
+
+  const handleSignin = () => {
+    navigate('/signin');
+  };
+
+  const handleRegister = () => {
+    navigate('/signup');
+  };
+
+  const handleLogout = () => {
+    // Clear authentication status
+    setAuthenticated(false);
+    // Clear any user-related data
+    setUsername('');
+    // Clear token cookie
+    document.cookie = 'token=;expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+  };
+
+  const handleProfile = () => {
+    handleClose();
+    navigate('/account');
+  }
+
+  const handleAdminAction = () => {
+    handleClose();
+    navigate('/user-management');
+  };
+
+  if (loading) {
+    return <div></div>; // Render loading indicator while checking authentication
+  }
 
   return (
     <nav style={{ backgroundColor: 'rgba(230, 230, 230, 0.5)', display: 'flex', justifyContent: 'flex-end', padding: '1rem', position: 'fixed', top: 0, left: 0, right: 0 }}>
@@ -83,10 +122,20 @@ const Navbar = () => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleClose}>Option 1</MenuItem>
-                <MenuItem onClick={handleClose}>Option 2</MenuItem>
-                <MenuItem onClick={handleClose}>Option 3</MenuItem>
-                <MenuItem onClick={handleClose}>Logout</MenuItem>
+                <MenuItem onClick={handleProfile}>
+                  <ManageAccountsIcon style={{ marginRight: '0.5rem' }} /> {/* Add the icon for Profile */}
+                  Profile
+                </MenuItem>
+                {isAdmin && ( // Conditionally render admin menu item
+                  <MenuItem onClick={handleAdminAction}>
+                    <SupervisorAccountIcon style={{ marginRight: '0.5rem' }} />
+                    Admin Action
+                  </MenuItem>
+                )}
+                <MenuItem onClick={handleLogout}>
+                  <ExitToAppIcon style={{ marginRight: '0.5rem', color: 'red' }} />
+                  <span style={{ color: 'red' }}>Logout</span>
+                </MenuItem>
               </Menu>
             </li>
           </>
@@ -99,7 +148,7 @@ const Navbar = () => {
                 color="primary"
                 aria-controls="simple-menu"
                 aria-haspopup="true"
-                onClick={handleClick}
+                onClick={handleRegister}
               >
                 S'enregistrer
               </Button>
@@ -111,7 +160,7 @@ const Navbar = () => {
                 color="primary"
                 aria-controls="simple-menu"
                 aria-haspopup="true"
-                onClick={handleClick}
+                onClick={handleSignin}
               >
                 Se connecter
               </Button>
