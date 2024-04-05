@@ -5,7 +5,7 @@ import Signup from './components/SignUp';
 import Quiz from './components/QuizH';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
-import WaitingRoom from './components/WaitingRoom';
+//import WaitingRoom from './components/WaitingRoom';
 import Account from './components/EditUser';
 import AddQuestions from './components/AddQuestion';
 import UserManagement from './components/UserManagement';
@@ -26,7 +26,7 @@ function App() {
         <Route path="/signin" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/game" element={<Quiz />} />
-        <Route path="/waiting-room" element={<WaitingRoom />} />
+        {<Route path="/waiting-room" element={<WaitingRoom />} />}
         <Route path="/account" element={<Account />} />
         <Route path="/add-question" element={<AddQuestions />} />
         <Route path="/user-management" element={<UserManagement />} />
