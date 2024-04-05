@@ -26,7 +26,7 @@ function App() {
         <Route path="/signin" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/game" element={<Quiz />} />
-        {<Route path="/waiting-room" element={<WaitingRoom />} />}
+        { /*<Route path="/waiting-room" element={<WaitingRoom />} />*/}
         <Route path="/account" element={<Account />} />
         <Route path="/add-question" element={<AddQuestions />} />
         <Route path="/user-management" element={<UserManagement />} />
