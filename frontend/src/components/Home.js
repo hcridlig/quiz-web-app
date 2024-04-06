@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
+import Skeleton from '@mui/material/Skeleton';
 import {
-  TextField,
-  Button,
-  Container,
   Typography,
-  Box,
+  Card,
+  CardContent,
+  CardMedia,
+  Grid,
+  Container,
 } from '@mui/material';
 
 const CategoriesPage = () => {
@@ -40,14 +42,14 @@ const CategoriesPage = () => {
     fetchCategories();
   }, []);
 
-  const handleCategorySelect = (category) => {    
+  const handleCategorySelect = (category) => {
     // Redirect to the waiting room
     navigate('/waiting-room', { state: { category: category } });
   };
 
   return (
-    <div style={{ marginTop: '8vh' }}> {/* Ajoutez la marge supérieure ici */}
-      <Typography variant="h4" component="h1" style={{ marginLeft: '1%' }}>
+    <Container sx={{ marginTop: '8vh' }}>
+      <Typography variant="h4" component="h1" sx={{ marginBottom: '2rem' }}>
         Choisissez une catégorie
       </Typography>
       {loading ? (
@@ -67,21 +69,38 @@ const CategoriesPage = () => {
       ) : (
         <Grid container spacing={2} justifyContent="center">
           {categories.map((category) => (
-            <div key={category.idcat} style={{ flexBasis: '23%', margin: '1rem 0.5rem', textAlign: 'center' }}>
-              <img src={category.image} alt={category.title} style={{ width: '200px', height: '200px', objectFit: 'cover' }} />
-              <h2>{category.title}</h2>
-              <p>{category.description}</p>
-              <button
-                style={{ backgroundColor: '#4CAF50', color: '#fff', cursor: 'pointer', fontSize: '1rem', padding: '0.5rem 1rem', borderRadius: '5px', transition: 'background-color 0.3s ease' }}
-                onClick={() => handleCategorySelect(category.title)}
-              >
-                Sélectionner
-              </button>
-            </div>
+            <Grid item key={category.idcat} xs={12} sm={6} md={4} lg={3}>
+              <Card sx={{
+                maxWidth: 300,
+                boxShadow: 3,
+                transition: 'transform 0.3s ease',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                  boxShadow: 5,
+                  cursor: 'pointer',
+                },
+                margin: '1rem 0',
+              }} onClick={() => handleCategorySelect(category.title)}>
+                <CardMedia
+                  component="img"
+                  height="180"
+                  image={category.image}
+                  alt={category.title}
+                />
+                <CardContent>
+                  <Typography gutterBottom variant="h5" component="div">
+                    {category.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {category.description}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
           ))}
-        </div>
+        </Grid>
       )}
-    </div>
+    </Container>
   );
 
 };
