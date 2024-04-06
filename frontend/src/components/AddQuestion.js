@@ -11,12 +11,22 @@ import {
   Select,
   MenuItem,
   InputLabel,
-  FormControl
+  FormControl,
+  Container,
+  Snackbar,
+  Alert,
 } from '@mui/material';
+import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 
 function AddQuestion() {
   const apiUrl = process.env.REACT_APP_API_URL;
+  const token = Cookies.get('token');
+  const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [question, setQuestion] = useState({
     title: '',
     option1: '',
@@ -27,19 +37,20 @@ function AddQuestion() {
     category: '',
   });
 
-  const [categories, setCategories] = useState([]);
-
   useEffect(() => {
     const fetchCategories = async () => {
-      const response = await fetch(`${apiUrl}/categories`); // Replace with your API URL
-      const data = await response.json();
-      setCategories(data);
+      try {
+        const response = await fetch(`${apiUrl}/categories`); // Replace with your API URL
+        const data = await response.json();
+        setCategories(data); 
+      } catch (error) {
+        console.error('An error occurred while fetching data:', error);
+      }
     };
 
     fetchCategories();
   }, []);
 
-  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     setQuestion({
@@ -48,10 +59,39 @@ function AddQuestion() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add logic to submit the question here.
-    console.log(question);
+  
+    try {
+      const response = await fetch(`${apiUrl}/questions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(question),
+      });
+  
+      if (response.ok) {
+        // Question added successfully
+        setSnackbarOpen(true);
+        setSnackbarMessage("Question ajoutée avec succès.");
+        setSnackbarSeverity('success');
+        // Reset the form
+        handleReset();
+      } else {
+        // Handle error response from the server
+        const errorData = await response.json();
+        setSnackbarOpen(true);
+        setSnackbarMessage(errorData.error);
+        setSnackbarSeverity('error');
+      }
+    } catch (error) {
+      // Handle network error
+      setSnackbarOpen(true);
+      setSnackbarMessage("An error occurred. Please try again.");
+      setSnackbarSeverity('error');
+    }
   };
 
   const handleCancel = () => {
@@ -70,8 +110,15 @@ function AddQuestion() {
     });
   };
 
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };  
+
   return (
-    <Box sx={{ mt: 12, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingLeft: "35%", }}>
+    <Container maxWidth="sm" sx={{ mt: 12 }}>
       <Typography variant="h4" component="h1">
         Add question
       </Typography>
@@ -83,10 +130,8 @@ function AddQuestion() {
           onChange={handleInputChange}
           fullWidth
           margin="normal"
-          sx={{ width: '50%' }}
-          mb={2}
+          sx={{ mb: 2 }}
         />
-        <br />
         <TextField
           label="Option 1"
           name="option1"
@@ -94,10 +139,8 @@ function AddQuestion() {
           onChange={handleInputChange}
           fullWidth
           margin="normal"
-          sx={{ width: '50%' }}
-          mb={2}
+          sx={{ mb: 2 }}
         />
-        <br />
         <TextField
           label="Option 2"
           name="option2"
@@ -105,10 +148,8 @@ function AddQuestion() {
           onChange={handleInputChange}
           fullWidth
           margin="normal"
-          sx={{ width: '50%' }}
-          mb={2}
+          sx={{ mb: 2 }}
         />
-        <br />
         <TextField
           label="Option 3"
           name="option3"
@@ -116,10 +157,8 @@ function AddQuestion() {
           onChange={handleInputChange}
           fullWidth
           margin="normal"
-          sx={{ width: '50%' }}
-          mb={2}
+          sx={{ mb: 2 }}
         />
-        <br />
         <TextField
           label="Option 4"
           name="option4"
@@ -127,10 +166,8 @@ function AddQuestion() {
           onChange={handleInputChange}
           fullWidth
           margin="normal"
-          sx={{ width: '50%' }}
-          mb={2}
+          sx={{ mb: 2 }}
         />
-        <br />
         <FormLabel component="legend">Correct Answer</FormLabel>
         <RadioGroup
           row
@@ -138,13 +175,14 @@ function AddQuestion() {
           name="correctAnswer"
           value={question.correctAnswer}
           onChange={handleInputChange}
+          sx={{ mb: 2 }}
         >
           <FormControlLabel value="option1" control={<Radio />} label="Option 1" />
           <FormControlLabel value="option2" control={<Radio />} label="Option 2" />
           <FormControlLabel value="option3" control={<Radio />} label="Option 3" />
           <FormControlLabel value="option4" control={<Radio />} label="Option 4" />
         </RadioGroup>
-        <FormControl fullWidth sx={{ width: '50%', mb: 2 }}>
+        <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel id="category-select-label">Category</InputLabel>
           <Select
             labelId="category-select-label"
@@ -159,21 +197,29 @@ function AddQuestion() {
             ))}
           </Select>
         </FormControl>
-        <Box sx={{ display: 'flex', mt: 2, paddingLeft: "25%"}}>
-          <Box sx={{ display: 'flex' }}>
-            <Button onClick={handleCancel} variant="outlined" color="secondary" sx={{ mt: 2, mr: 1 }}>
-              Cancel
-            </Button>
-            <Button onClick={handleReset} variant="contained" color="primary" sx={{ mt: 2, mr: 1}}>
-              Reset
-            </Button>
-            <Button type="submit" variant="contained" color="primary" sx={{ mt: 2, mr: 1 }}>
-              Add Question
-            </Button>
-          </Box>
+        <Box sx={{ display: 'flex', mt: 2, justifyContent: 'flex-end' }}>
+          <Button onClick={handleCancel} variant="outlined" color="secondary" sx={{ mr: 1 }}>
+            Cancel
+          </Button>
+          <Button onClick={handleReset} variant="contained" color="primary" sx={{ mr: 1}}>
+            Reset
+          </Button>
+          <Button type="submit" variant="contained" color="primary">
+            Add Question
+          </Button>
         </Box>
       </form>
-    </Box>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </Container>
   );
 }
 
