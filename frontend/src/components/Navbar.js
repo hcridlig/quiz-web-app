@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Menu, MenuItem } from '@mui/material';
-import { ExitToApp as ExitToAppIcon, ManageAccounts as ManageAccountsIcon, SupervisorAccount as SupervisorAccountIcon } from '@mui/icons-material';
+import { 
+  ExitToApp as ExitToAppIcon, 
+  ManageAccounts as ManageAccountsIcon, 
+  SupervisorAccount as SupervisorAccountIcon,
+  Add as AddIcon
+} from '@mui/icons-material';
+
+
 
 const Navbar = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
@@ -93,6 +100,11 @@ const Navbar = () => {
     navigate('/user-management');
   };
 
+  const handleAddQuestion = () => {
+    handleClose();
+    navigate('/add-question');
+  };
+
   if (loading) {
     return <div></div>; // Render loading indicator while checking authentication
   }
@@ -126,12 +138,16 @@ const Navbar = () => {
                   <ManageAccountsIcon style={{ marginRight: '0.5rem' }} /> {/* Add the icon for Profile */}
                   Profile
                 </MenuItem>
-                {isAdmin && ( // Conditionally render admin menu item
-                  <MenuItem onClick={handleAdminAction}>
+                {isAdmin && [
+                  <MenuItem key="admin-action" onClick={handleAdminAction}>
                     <SupervisorAccountIcon style={{ marginRight: '0.5rem' }} />
                     Admin Action
-                  </MenuItem>
-                )}
+                  </MenuItem>,
+                  <MenuItem key="add-question" onClick={handleAddQuestion}>
+                    <AddIcon style={{ marginRight: '0.5rem' }} />
+                    Ajouter une question
+                  </MenuItem>,
+                ]}
                 <MenuItem onClick={handleLogout}>
                   <ExitToAppIcon style={{ marginRight: '0.5rem', color: 'red' }} />
                   <span style={{ color: 'red' }}>Logout</span>
