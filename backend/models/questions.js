@@ -33,6 +33,10 @@ const Question = sequelize.define('question', {
     type: DataTypes.STRING(50),
     allowNull: false,
   },
+  idcat: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
 }, {
   timestamps: false, // Disable createdAt and updatedAt
 });

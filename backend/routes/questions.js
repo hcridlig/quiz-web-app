@@ -4,5 +4,6 @@ const questionsController = require('../controllers/questions');
 
 // Define routes for handling questions
 router.get('/', questionsController.getRandomQuestion);
+router.post('/', questionsController.addQuestion);
 
 module.exports = router;
