@@ -8,33 +8,56 @@ import {
   Box,
   Grid,
   IconButton,
+  Skeleton,
+  InputAdornment,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
+const SkeletonInput = ({ label, type, sx }) => (
+  <TextField
+    disabled
+    label={label}
+    type={type}
+    fullWidth
+    margin="normal"
+    size="small"
+    InputProps={{
+      startAdornment: (
+        <InputAdornment position="start">
+          <Skeleton variant="text" width={50} sx={{ mr: 1 }} />
+        </InputAdornment>
+      ),
+    }}
+    sx={{
+      '& .MuiInputBase-input': { color: 'transparent' },
+      '& .MuiInputLabel-root': { color: 'text.disabled' },
+      ...sx,
+    }}
+  />
+);
 
 function EditUser({ match, history }) {
   const apiUrl = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
   const userId = 43;
 
-  const [user, setUser] = useState({
-    iduser: '',
-    username: '',
-    email: '',
-    password: ''
-  });
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [newUsername, setNewUsername] = useState(user.username);
-  const [newEmail, setNewEmail] = useState(user.email);
+  const [newUsername, setNewUsername] = useState('');
+  const [newEmail, setNewEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
   useEffect(() => {
     const fetchUser = async () => {
+      setIsLoading(true);
       const response = await fetch(`${apiUrl}/users/${userId}`);
       const data = await response.json();
       setUser(data);
       setNewUsername(data.username);
       setNewEmail(data.email);
+      setIsLoading(false);
     };
 
     fetchUser();
@@ -85,57 +108,74 @@ function EditUser({ match, history }) {
           </Typography>
         </Grid>
       </Grid>
-      <Container>
-        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <TextField
-            label="Username"
-            value={newUsername}
-            onChange={e => setNewUsername(e.target.value)}
-            fullWidth
-            margin="normal"
-            size="small"
-            sx={{ maxWidth: 400 }}
-          />
-          <TextField
-            label="Email"
-            value={newEmail}
-            onChange={e => setNewEmail(e.target.value)}
-            type="email"
-            fullWidth
-            margin="normal"
-            size="small"
-            sx={{ maxWidth: 400 }}
-          />
-          <TextField
-            label="Current Password"
-            value={currentPassword}
-            onChange={e => setCurrentPassword(e.target.value)}
-            type="password"
-            fullWidth
-            margin="normal"
-            size="small"
-            sx={{ maxWidth: 400 }}
-          />
-          <TextField
-            label="New Password"
-            value={newPassword}
-            onChange={e => setNewPassword(e.target.value)}
-            type="password"
-            fullWidth
-            margin="normal"
-            size="small"
-            sx={{ maxWidth: 400 }}
-          />
+      {isLoading ? (
+        <Container>
+          <SkeletonInput label="Username" type="text" sx={{ maxWidth: 400, mb: 1 }} />
+          <SkeletonInput label="Email" type="email" sx={{ maxWidth: 400, mb: 1 }} />
+          <SkeletonInput label="Current Password" type="password" sx={{ maxWidth: 400, mb: 1 }} />
+          <SkeletonInput label="New Password" type="password" sx={{ maxWidth: 400, mb: 1 }} />
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%', mt: 2 }}>
-            <Button type="button" onClick={handleCancel} variant="outlined" color="secondary" sx={{ mr: 1 }}>
+            <Button disabled variant="outlined" color="secondary" sx={{ mr: 1 }}>
               Cancel
             </Button>
-            <Button type="submit" variant="contained" color="primary">
+            <Button disabled variant="contained" color="primary">
               Save Changes
             </Button>
           </Box>
-        </Box>
-      </Container>
+        </Container>
+      ) : (
+        <Container>
+          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <TextField
+              label="Username"
+              value={newUsername}
+              onChange={e => setNewUsername(e.target.value)}
+              fullWidth
+              margin="normal"
+              size="small"
+              sx={{ maxWidth: 400 }}
+            />
+            <TextField
+              label="Email"
+              value={newEmail}
+              onChange={e => setNewEmail(e.target.value)}
+              type="email"
+              fullWidth
+              margin="normal"
+              size="small"
+              sx={{ maxWidth: 400 }}
+            />
+            <TextField
+              label="Current Password"
+              value={currentPassword}
+              onChange={e => setCurrentPassword(e.target.value)}
+              type="password"
+              fullWidth
+              margin="normal"
+              size="small"
+              sx={{ maxWidth: 400 }}
+            />
+            <TextField
+              label="New Password"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              type="password"
+              fullWidth
+              margin="normal"
+              size="small"
+              sx={{ maxWidth: 400 }}
+            />
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%', mt: 2 }}>
+              <Button type="button" onClick={handleCancel} variant="outlined" color="secondary" sx={{ mr: 1 }}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="contained" color="primary">
+                Save Changes
+              </Button>
+            </Box>
+          </Box>
+        </Container>
+      )}
     </Container>
   );
 }
