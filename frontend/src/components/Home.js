@@ -51,11 +51,21 @@ const CategoriesPage = () => {
         Choisissez une catégorie
       </Typography>
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <CircularProgress />
-        </div>
+        <Grid container spacing={2} justifyContent="center">
+          {Array.from({ length: 8 }, (_, i) => (
+            <Grid item key={i} xs={12} sm={6} md={4} lg={3}>
+              <Card sx={{ maxWidth: 300, boxShadow: 3, margin: '1rem 0' }}>
+                <Skeleton variant="rectangular" height={180} />
+                <CardContent>
+                  <Skeleton variant="text" height={40} />
+                  <Skeleton variant="text" height={80} />
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       ) : (
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <Grid container spacing={2} justifyContent="center">
           {categories.map((category) => (
             <div key={category.idcat} style={{ flexBasis: '23%', margin: '1rem 0.5rem', textAlign: 'center' }}>
               <img src={category.image} alt={category.title} style={{ width: '200px', height: '200px', objectFit: 'cover' }} />
