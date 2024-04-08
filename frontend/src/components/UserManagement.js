@@ -63,10 +63,14 @@ const UserManagement = () => {
   const handleConfirmDelete = async () => {
     setDeletingUserId(userIdToDelete); // Set the deletingUserId state before sending the request
     setOpenDeleteDialog(false);
-  
+
     try {
       const response = await fetch(`${apiUrl}/users/${userIdToDelete}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Cookies.get('token')}`
+        },
       });
   
       if (response.ok) {
@@ -119,6 +123,7 @@ const UserManagement = () => {
         email: editableUser.email,
         role: editableUser.role === 'admin' ? true : false,
         ...(editableUser.password && { newPassword: editableUser.password }), // Only include the password field if it's not empty
+        page: 'userManagement'
       };
   
       // Get the token from the cookie
