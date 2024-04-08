@@ -30,9 +30,10 @@ const usersController = {
   
     try {
       const decoded = jwt.verify(token, process.env.API_SECRET_KEY); // Verify token using secret key
+      const playerId = decoded.userId;
       const playerName = decoded.username;
       const playerRole = decoded.role;
-      res.json({ playerName, playerRole });
+      res.json({playerId, playerName, playerRole });
     } catch (err) {
       return res.status(401).send('Invalid token');
     }
@@ -102,7 +103,7 @@ const usersController = {
   
       // If passwords match, generate a JWT token and send it in the response
       if (passwordMatch) {
-        const token = jwt.sign({ userId: user.id, username: user.username, role: user.role }, process.env.API_SECRET_KEY, { expiresIn: '1w' });
+        const token = jwt.sign({ userId: user.iduser, username: user.username, role: user.role }, process.env.API_SECRET_KEY, { expiresIn: '1w' });
         return res.json({ token });
       } else {
         return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
@@ -115,7 +116,7 @@ const usersController = {
 
   updateUser: async (req, res) => {
     try {
-      const { currentPassword, newPassword, ...updateData } = req.body;
+      const { currentPassword, newPassword, page, ...updateData } = req.body;
       const authHeader = req.headers['authorization'];
       const token = authHeader && authHeader.split(' ')[1];
   
@@ -128,7 +129,7 @@ const usersController = {
         if (err) {
           return res.status(401).json({ error: 'Invalid token.'});
         }
-  
+        
         // Extract role from decoded token
         const isAdmin = decoded.role;
   
@@ -138,22 +139,38 @@ const usersController = {
           return res.status(404).json({ error: 'User not found.' });
         }
   
-        // If newPassword is provided and requester is not admin, require currentPassword
-        if ((newPassword || req.body.password) && !isAdmin) {
-          if (!currentPassword) {
-            return res.status(400).json({ error: 'Current password is required.' });
+        // Check the page value and perform different validations
+        if (page === 'editUser') {
+          if(!currentPassword || !newPassword) {
+            return res.status(401).json({ error: 'Veuillez remplir tous les champs.'});
+          }    
+
+          // If the user is not an admin and is trying to edit another user's data, return an error
+          if (!isAdmin && user.iduser !== decoded.userId) {
+            return res.status(403).json({ error: 'Forbidden. You can only edit your own data.' });
           }
-  
-          const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
-          if (!isPasswordValid) {
-            return res.status(400).json({ error: 'Current password is incorrect.' });
+
+          console.log('updateData:', updateData);
+          // If the user is trying to change their password, verify the current password
+          if (currentPassword) {
+            const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+            if (!passwordMatch) {
+              return res.status(401).json({ error: 'Mot de passe incorrect.' });
+            }
           }
-        }
-  
-        // If newPassword is provided, hash the new password
-        if (newPassword || req.body.password) {
           const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
           updateData.password = hashedPassword; // Include the new hashed password in the updateData
+        } else if (page === 'userManagement') {
+          // If the user is not an admin, return an error
+          if (!isAdmin) {
+            return res.status(403).json({ error: 'Forbidden. Only admins can perform this action.' });
+          }
+  
+          // If newPassword is provided, hash the new password
+          if (newPassword) {
+            const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+            updateData.password = hashedPassword; // Include the new hashed password in the updateData
+          }
         }
   
         // Update user data
@@ -175,8 +192,8 @@ const usersController = {
         });
   
         // Only generate a new JWT token if the user updated their own password
-        if (!isAdmin && newPassword) {
-          const newToken = jwt.sign({ id: updatedUser.iduser, username: updatedUser.username, isAdmin }, process.env.API_SECRET_KEY, { expiresIn: '1w' });
+        if (page === 'editUser') {
+          const newToken = jwt.sign({ userId: updatedUser.iduser, username: updatedUser.username, role: isAdmin }, process.env.API_SECRET_KEY, { expiresIn: '1w' });
           return res.json({ user: updatedUser, token: newToken });
         }
   
@@ -188,8 +205,7 @@ const usersController = {
       res.status(500).send('Internal Server Error');
     }
   },
-  
-  
+    
 
 
   deleteUser: async (req, res) => {
