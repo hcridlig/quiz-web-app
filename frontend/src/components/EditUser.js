@@ -12,6 +12,7 @@ import {
   InputAdornment,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Cookies from 'js-cookie';
 
 const SkeletonInput = ({ label, type, sx }) => (
   <TextField
@@ -36,23 +37,23 @@ const SkeletonInput = ({ label, type, sx }) => (
   />
 );
 
-function EditUser({ match, history }) {
+const EditUser = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
   const navigate = useNavigate();
-  const userId = 43;
 
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-
+  const playerId = localStorage.getItem('playerId');
   const [newUsername, setNewUsername] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const token = Cookies.get('token');
 
   useEffect(() => {
     const fetchUser = async () => {
       setIsLoading(true);
-      const response = await fetch(`${apiUrl}/users/${userId}`);
+      const response = await fetch(`${apiUrl}/users/${playerId}`);
       const data = await response.json();
       setUser(data);
       setNewUsername(data.username);
@@ -61,7 +62,7 @@ function EditUser({ match, history }) {
     };
 
     fetchUser();
-  }, [userId]);
+  }, []);
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -70,13 +71,15 @@ function EditUser({ match, history }) {
       username: newUsername || user.username,
       email: newEmail || user.email,
       currentPassword: currentPassword,
-      newPassword: newPassword
+      newPassword: newPassword,
+      page: 'editUser'
     };
 
-    const response = await fetch(`${apiUrl}/users/${user.iduser}`, {
+    const response = await fetch(`${apiUrl}/users/${playerId}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(updatedUser)
     });
@@ -88,10 +91,17 @@ function EditUser({ match, history }) {
     setNewEmail(data.email);
     setCurrentPassword('');
     setNewPassword('');
+    
+    if(response.ok) {
+      document.cookie = `token=${data.token}; path=/;`;
+    }
   };
 
   const handleCancel = () => {
-    history.push(`/users/${user.iduser}`);
+    setNewUsername(user.username);
+    setNewEmail(user.email);
+    setCurrentPassword('');
+    setNewPassword('');
   };
 
   return (
