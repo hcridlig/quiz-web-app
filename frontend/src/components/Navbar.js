@@ -44,6 +44,7 @@ const Navbar = () => {
             const data = await response.json();
             setUsername(data.playerName);
             setIsAdmin(data.playerRole);
+            localStorage.setItem('playerId', data.playerId);
             setAuthenticated(true);
           } else {
             setAuthenticated(false);
@@ -88,6 +89,7 @@ const Navbar = () => {
     setUsername('');
     // Clear token cookie
     document.cookie = 'token=;expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+    localStorage.removeItem('playerId');
   };
 
   const handleProfile = () => {
