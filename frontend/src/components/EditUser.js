@@ -125,9 +125,6 @@ const EditUser = () => {
           <SkeletonInput label="Current Password" type="password" sx={{ maxWidth: 400, mb: 1 }} />
           <SkeletonInput label="New Password" type="password" sx={{ maxWidth: 400, mb: 1 }} />
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%', mt: 2 }}>
-            <Button disabled variant="outlined" color="secondary" sx={{ mr: 1 }}>
-              Cancel
-            </Button>
             <Button disabled variant="contained" color="primary">
               Save Changes
             </Button>
@@ -176,9 +173,6 @@ const EditUser = () => {
               sx={{ maxWidth: 400 }}
             />
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '100%', mt: 2 }}>
-              <Button type="button" onClick={handleCancel} variant="outlined" color="secondary" sx={{ mr: 1 }}>
-                Cancel
-              </Button>
               <Button type="submit" variant="contained" color="primary">
                 Save Changes
               </Button>

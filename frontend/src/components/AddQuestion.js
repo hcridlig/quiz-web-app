@@ -15,14 +15,17 @@ import {
   Container,
   Snackbar,
   Alert,
+  IconButton,
+  InputAdornment,
 } from '@mui/material';
+import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
+import CloseIcon from '@mui/icons-material/Close';
 import Cookies from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
+import { useDropzone } from 'react-dropzone';
 
 function AddQuestion() {
   const apiUrl = process.env.REACT_APP_API_URL;
   const token = Cookies.get('token');
-  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -36,21 +39,27 @@ function AddQuestion() {
     correctAnswer: '',
     category: '',
   });
+  const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
+  const [newCategory, setNewCategory] = useState({
+    title: '',
+    description: '',
+    image: '',
+    imageName: '',
+  });
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch(`${apiUrl}/categories`); // Replace with your API URL
+        const response = await fetch(`${apiUrl}/categories`);
         const data = await response.json();
-        setCategories(data); 
+        setCategories(data);
       } catch (error) {
-        console.error('An error occurred while fetching data:', error);
+        console.error('Une erreur s\'est produite lors de la récupération des données :', error);
       }
     };
 
     fetchCategories();
   }, []);
-
 
   const handleInputChange = (e) => {
     setQuestion({
@@ -59,9 +68,16 @@ function AddQuestion() {
     });
   };
 
+  const handleNewCategoryChange = (e) => {
+    setNewCategory({
+      ...newCategory,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       const response = await fetch(`${apiUrl}/questions`, {
         method: 'POST',
@@ -71,31 +87,95 @@ function AddQuestion() {
         },
         body: JSON.stringify(question),
       });
-  
-      if (response.ok) {
-        // Question added successfully
-        setSnackbarOpen(true);
-        setSnackbarMessage("Question ajoutée avec succès.");
-        setSnackbarSeverity('success');
-        // Reset the form
-        handleReset();
-      } else {
-        // Handle error response from the server
-        const errorData = await response.json();
-        setSnackbarOpen(true);
-        setSnackbarMessage(errorData.error);
-        setSnackbarSeverity('error');
+
+      if (!response.ok) {
+        const error = new Error('Une erreur s\'est produite lors de l\'ajout de la question');
+        error.response = response;
+        throw error;
       }
-    } catch (error) {
-      // Handle network error
+
       setSnackbarOpen(true);
-      setSnackbarMessage("An error occurred. Please try again.");
+      setSnackbarMessage("Question ajoutée avec succès.");
+      setSnackbarSeverity('success');
+      handleReset();
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout de la question :', error);
+
+      let message;
+      if (error.response) {
+        try {
+          const errorData = await error.response.json();
+          message = errorData.error || errorData.message || error.message;
+        } catch (jsonError) {
+          message = error.message;
+        }
+      } else {
+        message = error.message;
+      }
+
+      setSnackbarOpen(true);
+      setSnackbarMessage(message);
       setSnackbarSeverity('error');
     }
   };
 
-  const handleCancel = () => {
-    navigate(-1);
+  const handleNewCategorySubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const data = {
+        "title": newCategory.title,
+        "description": newCategory.description,
+        "image": `public/images/${newCategory.imageName}`
+      };
+
+      const response = await fetch(`${apiUrl}/categories`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = new Error('Une erreur s\'est produite lors de l\'ajout de la nouvelle catégorie');
+        error.response = response;
+        throw error;
+      }
+
+      const newCategoryData = await response.json();
+      setCategories([...categories, newCategoryData]);
+      setShowNewCategoryForm(false);
+      setNewCategory({
+        title: '',
+        description: '',
+        image: '',
+        imageName: '',
+      });
+      setQuestion({
+        ...question,
+        category: newCategoryData.idcat,
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout de la nouvelle catégorie :', error);
+
+      let message;
+      if (error.response) {
+        try {
+          const errorData = await error.response.json();
+          message = errorData.error || errorData.message || error.message;
+        } catch (jsonError) {
+          message = error.message;
+        }
+      } else {
+        message = error.message;
+      }
+
+      setSnackbarOpen(true);
+      setSnackbarMessage(message);
+      setSnackbarSeverity('error');
+    }
   };
 
   const handleReset = () => {
@@ -115,16 +195,35 @@ function AddQuestion() {
       return;
     }
     setSnackbarOpen(false);
-  };  
+  };
+
+  const handleDeleteImage = () => {
+    setNewCategory({
+      ...newCategory,
+      image: '',
+      imageName: '',
+    });
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: 'image/*',
+    onDrop: (acceptedFiles) => {
+      setNewCategory({
+        ...newCategory,
+        image: acceptedFiles[0],
+        imageName: acceptedFiles[0].name,
+      });
+    },
+  });
 
   return (
     <Container maxWidth="sm" sx={{ mt: 12 }}>
       <Typography variant="h4" component="h1">
-        Add question
+        Ajouter une question
       </Typography>
-      <form noValidate autoComplete="off" onSubmit={handleSubmit} >
+      <form noValidate autoComplete="off" onSubmit={handleSubmit}>
         <TextField
-          label="Question Title"
+          label="Titre de la question"
           name="title"
           value={question.title}
           onChange={handleInputChange}
@@ -168,7 +267,7 @@ function AddQuestion() {
           margin="normal"
           sx={{ mb: 2 }}
         />
-        <FormLabel component="legend">Correct Answer</FormLabel>
+        <FormLabel component="legend">Réponse correcte</FormLabel>
         <RadioGroup
           row
           aria-label="correctAnswer"
@@ -183,32 +282,91 @@ function AddQuestion() {
           <FormControlLabel value="option4" control={<Radio />} label="Option 4" />
         </RadioGroup>
         <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel id="category-select-label">Category</InputLabel>
+          <InputLabel id="category-select-label">Catégorie</InputLabel>
           <Select
             labelId="category-select-label"
             id="category-select"
-            value={question.category}
-            label="Category"
+            value={question.category == '' ? '' : question.category}
+            label="Catégorie"
             name="category"
-            onChange={handleInputChange}
+            onChange={(e) => {
+              if (e.target.value == '-1') {
+                setQuestion({
+                  ...question,
+                  category: null,
+                });
+                setShowNewCategoryForm(true);
+              } else {
+                setQuestion({
+                  ...question,
+                  category: e.target.value,
+                });
+                setShowNewCategoryForm(false);
+              }
+            }}
           >
             {categories.map((category) => (
-              <MenuItem key={category.idcat} value={category.idcat}>{category.title}</MenuItem>
+              <MenuItem key={category.idcat} value={category.idcat}>
+                {category.title}
+              </MenuItem>
             ))}
+            <MenuItem value={-1}>Ajouter une catégorie</MenuItem>
           </Select>
         </FormControl>
-        <Box sx={{ display: 'flex', mt: 2, justifyContent: 'flex-end' }}>
-          <Button onClick={handleCancel} variant="outlined" color="secondary" sx={{ mr: 1 }}>
-            Cancel
-          </Button>
-          <Button onClick={handleReset} variant="contained" color="primary" sx={{ mr: 1}}>
-            Reset
-          </Button>
-          <Button type="submit" variant="contained" color="primary">
-            Add Question
-          </Button>
-        </Box>
       </form>
+
+      {showNewCategoryForm && (
+        <Box sx={{ mb: 2 }}>
+          <form noValidate autoComplete="off" onSubmit={handleNewCategorySubmit}>
+            <TextField
+              label="Titre de la catégorie"
+              name="title"
+              value={newCategory.title}
+              onChange={handleNewCategoryChange}
+              fullWidth
+              margin="normal"
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Description de la catégorie"
+              name="description"
+              value={newCategory.description}
+              onChange={handleNewCategoryChange}
+              fullWidth
+              margin="normal"
+              sx={{ mb: 2 }}
+            />
+            <div {...getRootProps()} style={{ border: '1px dashed #ccc', padding: '20px', textAlign: 'center' }}>
+              <input {...getInputProps()} />
+              {!newCategory.image && <p>Déposez votre image ici</p>}
+              {newCategory.image && (
+                <div>
+                  <IconButton color="primary" component="label">
+                    <AddAPhotoIcon />
+                    <input type="file" hidden onChange={(e) => setNewCategory({ ...newCategory, image: e.target.files[0], imageName: e.target.files[0].name })} />
+                  </IconButton>
+                  <IconButton color="secondary" onClick={handleDeleteImage}>
+                    <CloseIcon />
+                  </IconButton>
+                </div>
+              )}
+            </div>
+            <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+              Ajouter une catégorie
+            </Button>
+          </form>
+        </Box>
+      )}
+
+      <Box sx={{ display: 'flex', mt: 2, justifyContent: 'flex-end' }}>
+        <Button onClick={handleReset} variant="contained" color="primary" sx={{ mr: 1}}>
+          Réinitialiser
+        </Button>
+        <Button type="submit" variant="contained" color="primary">
+          Ajouter une question
+        </Button>
+      </Box>
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={4000}
