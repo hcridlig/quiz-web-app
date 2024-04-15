@@ -2,16 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Button, Container, Typography, Paper, Grid } from '@mui/material';
 
 const QuizPage = () => {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const [questionData, setQuestionData] = useState(null);
   const [answerSelected, setAnswerSelected] = useState(false);
 
   useEffect(() => {
-    // Fetch question data from your API here
-    fetch('https://quiz-web-app-five.vercel.app/questions')
-      .then((response) => response.json())
-      .then((data) => setQuestionData(data))
-      .catch((error) => console.error('Error fetching data:', error));
-  }, []);
+    if (apiUrl) {
+      // Fetch question data from your API here
+      fetch(`${apiUrl}/questions`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then((data) => setQuestionData(data))
+        .catch((error) => console.error('Error fetching data:', error));
+    } else {
+      console.error('API URL is not defined in the environment variables.');
+    }
+  }, [apiUrl]);
+  
 
   const handleAnswer = (selectedOption, optionContent) => {
     if (!answerSelected) {
@@ -37,7 +48,7 @@ const QuizPage = () => {
       });  
      
       setTimeout(() => {
-        fetch('https://quiz-web-app-five.vercel.app/questions')
+        fetch(`${apiUrl}/questions`)
           .then((response) => response.json())
           .then((data) => {
             setQuestionData(data);
