@@ -48,7 +48,7 @@ const CategoriesPage = () => {
   };
 
   return (
-    <Container sx={{ marginTop: '8vh' }}>
+    <Container sx={{ mt: 17 }}>
       <Typography variant="h4" component="h1" sx={{ marginBottom: '2rem' }}>
         Choisissez une catégorie
       </Typography>
