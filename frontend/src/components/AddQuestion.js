@@ -16,7 +16,6 @@ import {
   Snackbar,
   Alert,
   IconButton,
-  InputAdornment,
 } from '@mui/material';
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import CloseIcon from '@mui/icons-material/Close';
@@ -217,7 +216,7 @@ function AddQuestion() {
   });
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 12 }}>
+    <Container maxWidth="sm" sx={{ mt: 17 }}>
       <Typography variant="h4" component="h1">
         Ajouter une question
       </Typography>
@@ -351,7 +350,7 @@ function AddQuestion() {
                 </div>
               )}
             </div>
-            <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+            <Button type="submit" variant="contained" color="success" sx={{ mt: 2 }}>
               Ajouter une catégorie
             </Button>
           </form>
