@@ -5,8 +5,12 @@ const questionsController = {
     
   getRandomQuestion: async (req, res) => {
     try {
-      const randomQuestion = await Question.findOne({
+      const randomQuestion = await Question.findAll({
         order: sequelize.random(),
+        limit: 3,
+        where: {
+          idcat: req.params.idcat,
+        },
       });
 
       if (!randomQuestion) {

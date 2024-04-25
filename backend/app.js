@@ -22,6 +22,9 @@ app.use('/categories', categoriesRoutes);
 const resultsRoutes = require('./routes/results');
 app.use('/results', resultsRoutes);
 
+const gamesRoutes = require('./routes/games');
+app.use('/games', gamesRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
