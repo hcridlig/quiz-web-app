@@ -11,8 +11,9 @@ import {
   Button,
   Typography,
   CircularProgress,
-  Alert,
-  IconButton
+  IconButton,
+  Snackbar,
+  Alert
 } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -23,7 +24,9 @@ const AddUser = () => {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
   const [isLoading, setIsLoading] = useState(false);
-  const [alert, setAlert] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,27 +55,36 @@ const AddUser = () => {
         setEmail("");
         setPassword("");
         setRole("user");
-        setAlert({ severity: 'success', message: 'Utilisateur ajouté avec succès' });
+        setSnackbarMessage('Utilisateur ajouté avec succès');
+        setSnackbarSeverity('success');
+        setOpenSnackbar(true);
       } else {
         // Il y a eu une erreur en ajoutant l'utilisateur
         const data = await response.json();
         console.error('Erreur en ajoutant l\'utilisateur:', data.error);
-        setAlert({ severity: 'error', message: data.error });
+        setSnackbarMessage(data.error);
+        setSnackbarSeverity('error');
+        setOpenSnackbar(true);
       }
     } catch (error) {
       console.error('Erreur en envoyant la requête:', error);
-      setAlert({ severity: 'error', message: 'Erreur en envoyant la requête' });
+      setSnackbarMessage('Erreur en envoyant la requête');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
     } finally {
       setIsLoading(false);
     }
+  };
 
-    setTimeout(() => {
-      setAlert(null);
-    }, 3000);
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
   };
 
   return (
-    <Container component="main" maxWidth="xs" sx={{ mt: 12 }}>
+    <Container component="main" maxWidth="xs" sx={{ mt: openSnackbar ? 20 : 17 }}>
       <Grid container alignItems="center" >
         <Grid item>
           <IconButton color="primary" href="/user-management">
@@ -86,12 +98,6 @@ const AddUser = () => {
         </Grid>
       </Grid>
 
-      {alert && (
-        <Alert severity={alert.severity}>
-          {alert.message}
-        </Alert>
-      )}
-
       <Container>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <form onSubmit={handleSubmit}>
@@ -103,6 +109,8 @@ const AddUser = () => {
                   onChange={(e) => setName(e.target.value)}
                   fullWidth
                   required
+                  size="small"
+                  sx={{ maxWidth: 400, mt: 2 }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -113,6 +121,8 @@ const AddUser = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   fullWidth
                   required
+                  size="small"
+                  sx={{ maxWidth: 400 }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -123,6 +133,8 @@ const AddUser = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   fullWidth
                   required
+                  size="small"
+                  sx={{ maxWidth: 400 }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -150,6 +162,12 @@ const AddUser = () => {
           </form>
         </Box>
       </Container>
+      <Snackbar open={openSnackbar} autoHideDuration={4000} onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%', mt:10 }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, Menu, MenuItem } from '@mui/material';
-import { 
-  ExitToApp as ExitToAppIcon, 
-  ManageAccounts as ManageAccountsIcon, 
+import { useNavigate, Link } from 'react-router-dom';
+import { Button, Menu, MenuItem, IconButton } from '@mui/material';
+import {
+  ExitToApp as ExitToAppIcon,
+  ManageAccounts as ManageAccountsIcon,
   SupervisorAccount as SupervisorAccountIcon,
-  Add as AddIcon
+  Add as AddIcon,
+  EmojiEventsIcon as RankIcon
 } from '@mui/icons-material';
-
-
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import HistoryIcon from '@mui/icons-material/History';
+import { maxHeight } from '@mui/system';
 
 const Navbar = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
@@ -100,6 +102,16 @@ const Navbar = () => {
     navigate('/account');
   }
 
+  const handleClassement = () => {
+    handleClose();
+    navigate('/ranking');
+  }
+
+  const handleHistory = () => {
+    handleClose();
+    navigate('/history');
+  }
+
   const handleAdminAction = () => {
     handleClose();
     navigate('/user-management');
@@ -115,7 +127,12 @@ const Navbar = () => {
   }
 
   return (
-    <nav style={{ backgroundColor: 'rgba(230, 230, 230, 0.5)', display: 'flex', justifyContent: 'flex-end', padding: '1rem', position: 'fixed', top: 0, left: 0, right: 0 }}>
+    <nav style={{ backgroundColor: 'rgba(230, 230, 230, 0.5)', display: 'flex', justifyContent: 'space-between', padding: '1rem', position: 'fixed', top: 0, left: 0, right: 0, }}>
+      <Link to="/">
+        <IconButton>
+          <img src="logo-squizzy.png" alt="Squizzy" style={{ width: '5.5em', height: '2em' }} />
+        </IconButton>
+      </Link>
       <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', alignItems: 'center' }}>
         {authenticated ? (
           <>
@@ -140,8 +157,16 @@ const Navbar = () => {
                 onClose={handleClose}
               >
                 <MenuItem onClick={handleProfile}>
-                  <ManageAccountsIcon style={{ marginRight: '0.5rem' }} /> {/* Add the icon for Profile */}
+                  <ManageAccountsIcon style={{ marginRight: '0.5rem' }} /> 
                   Profile
+                </MenuItem>
+                <MenuItem onClick={handleClassement}>
+                  <EmojiEventsIcon style={{ marginRight: '0.5rem' }} /> 
+                  Classement
+                </MenuItem>
+                <MenuItem onClick={handleHistory}>
+                  <HistoryIcon style={{ marginRight: '0.5rem' }} /> 
+                  Historique
                 </MenuItem>
                 {isAdmin && [
                   <MenuItem key="admin-action" onClick={handleAdminAction}>

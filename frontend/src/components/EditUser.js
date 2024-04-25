@@ -10,6 +10,8 @@ import {
   IconButton,
   Skeleton,
   InputAdornment,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Cookies from 'js-cookie';
@@ -49,6 +51,10 @@ const EditUser = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const token = Cookies.get('token');
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -91,21 +97,21 @@ const EditUser = () => {
     setNewEmail(data.email);
     setCurrentPassword('');
     setNewPassword('');
-    
+
     if(response.ok) {
+      setSnackbarMessage('User updated successfully');
+      setSnackbarSeverity('success');
+      setOpenSnackbar(true);
       document.cookie = `token=${data.token}; path=/;`;
+    } else {
+      setSnackbarMessage(data.error);
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
     }
   };
 
-  const handleCancel = () => {
-    setNewUsername(user.username);
-    setNewEmail(user.email);
-    setCurrentPassword('');
-    setNewPassword('');
-  };
-
   return (
-    <Container component="main" maxWidth="xs" sx={{ mt: 12 }}>
+    <Container component="main" maxWidth="xs" sx={{mt: openSnackbar ? 20 : 17 }}>
       <Grid container alignItems="center">
         <Grid item>
           <IconButton color="primary" href="/">
@@ -113,9 +119,22 @@ const EditUser = () => {
           </IconButton>
         </Grid>
         <Grid item>
-          <Typography variant="h4" component="h1">
-            Edit User
-          </Typography>
+          <Box sx={{ position: 'relative' }}>
+            <Typography variant="h4" component="h1">
+              Edit User
+            </Typography>
+            <Snackbar
+              open={openSnackbar}
+              autoHideDuration={4000}
+              onClose={() => setOpenSnackbar(false)}
+              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+              sx={{mt:10 }}
+            >
+              <Alert onClose={() => setOpenSnackbar(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                {snackbarMessage}
+              </Alert>
+            </Snackbar>
+          </Box>
         </Grid>
       </Grid>
       {isLoading ? (
@@ -134,16 +153,19 @@ const EditUser = () => {
         <Container>
           <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <TextField
-              label="Username"
+              label={newUsername ? null : "Username"}
               value={newUsername}
               onChange={e => setNewUsername(e.target.value)}
               fullWidth
               margin="normal"
               size="small"
               sx={{ maxWidth: 400 }}
+              InputLabelProps={{
+                shrink: !newUsername,
+              }}
             />
             <TextField
-              label="Email"
+              label={newEmail ? null : "Email"}
               value={newEmail}
               onChange={e => setNewEmail(e.target.value)}
               type="email"
@@ -151,6 +173,9 @@ const EditUser = () => {
               margin="normal"
               size="small"
               sx={{ maxWidth: 400 }}
+              InputLabelProps={{
+                shrink: !newEmail,
+              }}
             />
             <TextField
               label="Current Password"

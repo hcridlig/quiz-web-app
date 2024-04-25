@@ -141,9 +141,9 @@ const usersController = {
   
         // Check the page value and perform different validations
         if (page === 'editUser') {
-          if(!currentPassword || !newPassword) {
-            return res.status(401).json({ error: 'Veuillez remplir tous les champs.'});
-          }    
+          if((!currentPassword && newPassword) || (currentPassword && !newPassword)) {
+            return res.status(401).json({ error: 'Veuillez saissir votre mot de passe actuel.'});
+          }
 
           // If the user is not an admin and is trying to edit another user's data, return an error
           if (!isAdmin && user.iduser !== decoded.userId) {
