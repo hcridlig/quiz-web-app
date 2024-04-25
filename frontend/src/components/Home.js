@@ -42,9 +42,11 @@ const CategoriesPage = () => {
     fetchCategories();
   }, []);
 
-  const handleCategorySelect = (category) => {
-    // Redirect to the waiting room
-    navigate('/waiting-room', { state: { category: category } });
+  const handleCategorySelect = (category, idcat) => {
+    // Generate a random room number with 4 letters and numbers
+    const roomNumber = Math.random().toString(36).substring(2,6);
+    // Redirect to the waiting room with the room number as a parameter
+    navigate(`/waiting-room/${roomNumber}`, { state: { category: category , idcat: idcat} });
   };
 
   return (
@@ -80,7 +82,7 @@ const CategoriesPage = () => {
                   cursor: 'pointer',
                 },
                 margin: '1rem 0',
-              }} onClick={() => handleCategorySelect(category.title)}>
+              }} onClick={() => handleCategorySelect(category.title, category.idcat)}>
                 <CardMedia
                   component="img"
                   height="180"
