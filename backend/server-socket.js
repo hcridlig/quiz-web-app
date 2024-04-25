@@ -18,11 +18,11 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
     console.log('a user connected', socket.id);
 
-    socket.on('joinRoom', ({ roomId, roomName, playerName }) => {
+    socket.on('joinRoom', ({ roomId, roomName, playerName, idCat }) => {
         socket.join(roomId);
     
         if (!rooms[roomId]) {
-            rooms[roomId] = { roomName: roomName, players: [] };
+            rooms[roomId] = { roomName: roomName, idCat: idCat, players: [] };
         }
     
         // Check if the player with the same name is already in the room before adding them
@@ -33,7 +33,7 @@ io.on('connection', (socket) => {
     
             // Emit only when a new player joins, not every time
             io.to(roomId).emit('playersInRoom', rooms[roomId].players);
-            io.to(roomId).emit('roomName', rooms[roomId].roomName);
+            io.to(roomId).emit('roomName', {roomName: rooms[roomId].roomName, idCat: rooms[roomId].idCat});
         }
     });
     
@@ -91,7 +91,7 @@ io.on('connection', (socket) => {
                             socket.emit('end'); // Send the 'end' event to the sender (room creator/host)
                             io.to(roomId).emit('end'); // Send the 'end' event to all clients in the room when all questions have been sent
                         }
-                    }, 1000); // Emit a new question every 10 seconds
+                    }, 10000); // Emit a new question every 10 seconds
                     
                     // Emit the first question immediately
                     if (data.length > 0) {
