@@ -1,4 +1,5 @@
 const { User } = require('../models/users');
+const { Result } = require('../models/results');
 const { Op } = require('sequelize');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -210,18 +211,23 @@ const usersController = {
 
   deleteUser: async (req, res) => {
     try {
+      // First, delete appearances in the result table
+      await Result.destroy({ where: { iduser: req.params.id } });
+  
+      // Then, delete the user from the users table
       const deletedRowCount = await User.destroy({ where: { iduser: req.params.id } });
-
+  
       if (deletedRowCount === 0) {
         return res.status(404).json({ error: 'User not found.' });
       }
-
+  
       res.json({ message: 'User deleted successfully.' });
     } catch (error) {
       console.error(error);
       res.status(500).send('Internal Server Error');
     }
   },
+  
 };
 
 module.exports = usersController;
