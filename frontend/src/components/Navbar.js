@@ -164,10 +164,6 @@ const Navbar = () => {
                   <EmojiEventsIcon style={{ marginRight: '0.5rem' }} /> 
                   Classement
                 </MenuItem>
-                <MenuItem onClick={handleHistory}>
-                  <HistoryIcon style={{ marginRight: '0.5rem' }} /> 
-                  Historique
-                </MenuItem>
                 {isAdmin && [
                   <MenuItem key="admin-action" onClick={handleAdminAction}>
                     <SupervisorAccountIcon style={{ marginRight: '0.5rem' }} />
